@@ -8,7 +8,8 @@ namespace SmallBang
     public partial class SmallBangForm : Form
     {
         bool shown = true;
-        Timer t1;
+        Timer timerShowWindow;
+        Timer timerNewEmails;
         ClusterCollection cc;
 
         public SmallBangForm(ClusterCollection _cc)
@@ -20,9 +21,10 @@ namespace SmallBang
 
         private void Reorder()
         {
-            cc.clusters = cc.clusters.OrderBy(o => -o.new_emails).
-                ThenBy(o => -o.sent_emails * o.people.Count).
-                ThenBy(o => -o.people.Count).ToList();
+            cc.clusters = cc.clusters.OrderBy(
+                o => -(double)(o.new_emails + 0.0) / (o.people.Count + 1.0) * (o.sent_emails + 1.0))
+                .ThenBy(o => -o.sent_emails * o.people.Count)
+                .ThenBy(o => -o.people.Count).ToList();
             clusterListBox.Items.Clear();
             foreach (var c in cc.clusters)
             {
@@ -39,14 +41,29 @@ namespace SmallBang
             clusterListBox.Width = Size.Width;
             clusterListBox.Height = Size.Height;
 
-            t1 = new Timer();
-            t1.Interval = 100;
-            t1.Tick += new EventHandler(timer1_Tick);
-            t1.Enabled = true;
+            timerShowWindow = new Timer();
+            timerShowWindow.Interval = 100;
+            timerShowWindow.Tick += new EventHandler(timerShowWindow_Tick);
+            timerShowWindow.Enabled = true;
+
+            timerNewEmails = new Timer();
+            timerNewEmails.Interval = 60 * 1000;
+            timerNewEmails.Tick += new EventHandler(timerNewEmails_Tick);
+            timerNewEmails.Enabled = true;
+
             this.TopMost = true;
         }
 
-        private void timer1_Tick(object sender, EventArgs e)
+        private void timerNewEmails_Tick(object sender, EventArgs e)
+        {
+            lock (cc)
+            {
+                cc.GrabNewEmails();
+                Reorder();
+            }
+        }
+
+        private void timerShowWindow_Tick(object sender, EventArgs e)
         {
             Point p = Cursor.Position;
             if (shown)
@@ -62,13 +79,16 @@ namespace SmallBang
             {
                 if (p.X >= -20 && p.X <= 20)
                 {
-                    Width = 300;
-                    clusterListBox.SelectedIndex = -1;
-                    Location = new Point(0, 0);
-                    Refresh();
-                    Show();
-                    clusterListBox.Focus();
-                    shown = true;
+                    lock (cc)
+                    {
+                        Width = 300;
+                        clusterListBox.SelectedIndex = -1;
+                        Location = new Point(0, 0);
+                        Refresh();
+                        Show();
+                        clusterListBox.Focus();
+                        shown = true;
+                    }
                 }
             }
         }
@@ -168,7 +188,7 @@ namespace SmallBang
 
         private void SmallBangForm_FormClosed(object sender, FormClosedEventArgs e)
         {
-            t1.Stop();
+            timerShowWindow.Stop();
         }
     }
 }

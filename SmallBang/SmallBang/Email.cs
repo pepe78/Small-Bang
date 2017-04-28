@@ -7,6 +7,7 @@ namespace SmallBang
 {
     public class Email
     {
+        public string emailId;
         public string emailSubject;
         public string emailFrom;
         public List<string> emailTo;
@@ -42,6 +43,7 @@ namespace SmallBang
 
         public Email(DObject obj, string currentUser)
         {
+            emailId = obj["id"].ToString();
             emailSubject = obj["subject"].ToString();
             emailFrom = obj["sender"]["emailAddress"]["address"].ToString().ToLower();
             emailTo = new List<string>();

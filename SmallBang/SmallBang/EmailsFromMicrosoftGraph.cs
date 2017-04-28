@@ -11,7 +11,8 @@ namespace SmallBang
     public class EmailsFromMicrosoftGraph
     {
         public string currentUser;
-        public List<Email> emails;
+        List<Email> newEmails;
+        HashSet<string> alreadyProcessedEmails;
 
         string accessToken;
         string refreshToken;
@@ -72,10 +73,22 @@ namespace SmallBang
             return Deserializer.Deserialize(responseBody);
         }
 
-        public List<Email> GetEmails()
+        public List<Email> GetNewEmails()
         {
+            newEmails = new List<Email>();
+            if (alreadyProcessedEmails == null)
+            {
+                alreadyProcessedEmails = new HashSet<string>();
+            }
+            GetEmailsInner();
+
+            return newEmails;
+        }
+
+        private void GetEmailsInner()
+        {
+            DateTime ct = DateTime.Now;
             var myUri = new Uri("https://graph.microsoft.com/v1.0/me/messages?$orderby=sentDateTime%20desc");
-            emails = new List<Email>();
 
             while (true)
             {
@@ -101,21 +114,27 @@ namespace SmallBang
                     currentUser = currentUser.Substring(0, currentUser.IndexOf("'"));
                     currentUser = currentUser.Replace("%40", "@").ToLower();
                 }
+                responseStream.Close();
+                myWebResponse.Close();
 
+                Email e = null;
                 foreach (DObject oo in o["value"])
                 {
                     try
                     {
-                        Email e;
                         e = new Email(oo, currentUser);
-                        emails.Add(e);
+                        if (e.emailStamp < ct.Subtract(new TimeSpan(31, 0, 0, 0)) ||
+                            alreadyProcessedEmails.Contains(e.emailId))
+                        {
+                            return;
+                        }
+                        newEmails.Add(e);
+                        alreadyProcessedEmails.Add(e.emailId);
                     }
                     catch
                     {
                     }
                 }
-                responseStream.Close();
-                myWebResponse.Close();
 
                 DObject next;
                 if (o.TryGetValue("@odata.nextLink", out next))
@@ -127,8 +146,6 @@ namespace SmallBang
                     break;
                 }
             }
-
-            return emails;
         }
     }
 }

@@ -47,8 +47,7 @@ namespace SmallBang
         private void ThreadStart(object obj)
         {
             ThreadHelper th = obj as ThreadHelper;
-            List<Email> emails = th.ef.GetEmails();
-            th.sbf = new SmallBangForm(new ClusterCollection(emails, th.ef.currentUser));
+            th.sbf = new SmallBangForm(new ClusterCollection(th.ef));
         }
 
         private void pictureBox1_Click(object sender, EventArgs e)

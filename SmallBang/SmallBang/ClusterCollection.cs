@@ -7,10 +7,10 @@ namespace SmallBang
     public class ClusterCollection
     {
         public List<Cluster> clusters;
-        public List<Email> all_emails;
         public Dictionary<string, int> personToFeatureId;
         string current_user;
         public int[] countsAll;
+        EmailsFromMicrosoftGraph efmg;
 
         private void ProcessEmail(string ea)
         {
@@ -20,11 +20,37 @@ namespace SmallBang
             }
         }
 
-        public ClusterCollection(List<Email> _emails, string _current_user)
+        public void GrabNewEmails()
         {
-            current_user = _current_user;
+            List<Email> all_emails = efmg.GetNewEmails();
+
+            for (int j = all_emails.Count - 1; j >= 0; j--)
+            {
+                all_emails[j].SetUserVector(personToFeatureId);
+                AddToCounts(all_emails[j]);
+
+                int wh = -1;
+                double maxGain = double.MinValue;
+                for (int i = 0; i < clusters.Count; i++)
+                {
+                    double tmp = clusters[i].deltaIfAdded(all_emails[j], countsAll);
+                    if (tmp > maxGain)
+                    {
+                        wh = i;
+                        maxGain = tmp;
+                    }
+                }
+                clusters[wh].AddEmail(all_emails[j]);
+                clusters[wh].Recount();
+            }
+        }
+
+        public ClusterCollection(EmailsFromMicrosoftGraph _efmg)
+        {
             personToFeatureId = new Dictionary<string, int>();
-            all_emails = _emails;
+            efmg = _efmg;
+            List<Email> all_emails = efmg.GetNewEmails();
+            current_user = efmg.currentUser;
             all_emails = all_emails.OrderBy(o => -o.emailStamp.Ticks).ToList();
             foreach (var e in all_emails)
             {
@@ -38,13 +64,13 @@ namespace SmallBang
                     ProcessEmail(ea);
                 }
             }
-            SetUserDictionary();
-            DoClustering();
+            SetUserDictionary(all_emails);
+            DoClustering(all_emails);
 
             //DisplayAsBitmap();
         }
 
-        private void DisplayAsBitmap()
+        private void DisplayAsBitmap(List<Email> all_emails)
         {
             Bitmap b = new Bitmap(clusters[0].emails[0].userVector.Length,
                 clusters.Count + all_emails.Count);
@@ -76,7 +102,7 @@ namespace SmallBang
             System.Diagnostics.Process.Start("tmp.png");
         }
 
-        private void SetUserDictionary()
+        private void SetUserDictionary(List<Email> all_emails)
         {
             for (int i = 0; i < all_emails.Count; i++)
             {
@@ -92,10 +118,10 @@ namespace SmallBang
             }
         }
 
-        private void DoClustering()
+        private void DoClustering(List<Email> all_emails)
         {
-            SetUserVectorsAndCounts();
-            ConstructSameVectorsClusters();
+            SetUserVectorsAndCounts(all_emails);
+            ConstructSameVectorsClusters(all_emails);
             DoPOPCClustering();
 
             for (int i = 0; i < clusters.Count; i++)
@@ -148,7 +174,7 @@ namespace SmallBang
             }
         }
 
-        private void ConstructSameVectorsClusters()
+        private void ConstructSameVectorsClusters(List<Email> all_emails)
         {
             clusters = new List<Cluster>();
             for (int i = 0; i < all_emails.Count; i++)
@@ -174,18 +200,23 @@ namespace SmallBang
             }
         }
 
-        private void SetUserVectorsAndCounts()
+        private void SetUserVectorsAndCounts(List<Email> all_emails)
         {
             countsAll = new int[personToFeatureId.Count];
             for (int i = 0; i < all_emails.Count; i++)
             {
                 all_emails[i].SetUserVector(personToFeatureId);
-                for (int j = 0; j < personToFeatureId.Count; j++)
+                AddToCounts(all_emails[i]);
+            }
+        }
+
+        private void AddToCounts(Email e)
+        {
+            for (int j = 0; j < personToFeatureId.Count; j++)
+            {
+                if (e.userVector[j])
                 {
-                    if (all_emails[i].userVector[j])
-                    {
-                        countsAll[j]++;
-                    }
+                    countsAll[j]++;
                 }
             }
         }

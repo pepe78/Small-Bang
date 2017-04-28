@@ -27,7 +27,7 @@ namespace SmallBang
 
         public void AddEmail(Email e)
         {
-            emails.Add(e);
+            emails.Insert(0, e);
             for (int i = 0; i < counts.Length; i++)
             {
                 if (e.userVector[i])
