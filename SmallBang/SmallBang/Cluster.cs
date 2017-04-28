@@ -10,14 +10,13 @@ namespace SmallBang
     {
         public List<Email> emails;
 
-        public Dictionary<string, int> companies;
+        Dictionary<string, int> companies;
         public Dictionary<string, int> people;
 
         public int new_emails;
-        public int all_emails;
         public int sent_emails;
 
-        public int[] counts;
+        int[] counts;
 
         public Cluster(int amountOfPeople)
         {
@@ -47,6 +46,14 @@ namespace SmallBang
                 {
                     counts[i]++;
                 }
+            }
+            if(!e.isRead)
+            {
+                new_emails++;
+            }
+            if(e.isSent)
+            {
+                sent_emails++;
             }
         }
 
@@ -99,7 +106,6 @@ namespace SmallBang
 
             Recount();
 
-            all_emails = emails.Count;
             people = new Dictionary<string, int>();
             companies = new Dictionary<string, int>();
             foreach (var e in emails)
@@ -220,7 +226,7 @@ namespace SmallBang
                 e.Bounds.Width - margin - numberWidth, e.Bounds.Top + margin + 20,
                 numberWidth, e.Bounds.Height - margin - 20);
             e.Graphics.DrawString(
-                all_emails.ToString(),
+                emails.Count.ToString(),
                 new Font("Georgia", 8.0F, FontStyle.Regular),
                 new SolidBrush(Color.FromArgb(23, 67, 137)),
                 layoutRect, new StringFormat());
