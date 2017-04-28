@@ -11,6 +11,7 @@ namespace SmallBang
     public class EmailsFromMicrosoftGraph
     {
         public string currentUser;
+        List<Email> allEmails;
         List<Email> newEmails;
         HashSet<string> alreadyProcessedEmails;
 
@@ -27,6 +28,8 @@ namespace SmallBang
             code = ol.code;
             GetAccessToken();
             RefreshToken();
+
+            allEmails = new List<Email>();
         }
 
         private void GetAccessToken()
@@ -71,6 +74,11 @@ namespace SmallBang
             }
 
             return Deserializer.Deserialize(responseBody);
+        }
+
+        public List<Email> GetAllEmails()
+        {
+            return allEmails;
         }
 
         public List<Email> GetNewEmails()
@@ -129,6 +137,7 @@ namespace SmallBang
                             return;
                         }
                         newEmails.Add(e);
+                        allEmails.Add(e);
                         alreadyProcessedEmails.Add(e.emailId);
                     }
                     catch

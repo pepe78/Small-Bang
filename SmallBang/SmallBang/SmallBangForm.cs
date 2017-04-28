@@ -2,15 +2,19 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace SmallBang
 {
     public partial class SmallBangForm : Form
     {
+        object lockObj = new object();
+
         bool shown = true;
         Timer timerShowWindow;
         Timer timerNewEmails;
+        Timer timerReCluster;
         ClusterCollection cc;
         EmailsFromMicrosoftGraph efmg;
 
@@ -55,15 +59,43 @@ namespace SmallBang
             timerNewEmails.Tick += new EventHandler(timerNewEmails_Tick);
             timerNewEmails.Enabled = true;
 
+            timerReCluster = new Timer();
+            timerReCluster.Interval = 60 * 60 * 1000;
+            timerReCluster.Tick += new EventHandler(timerReCluster_Tick);
+            timerReCluster.Enabled = true;
+
             this.TopMost = true;
+        }
+
+        private void timerReCluster_Tick(object sender, EventArgs e)
+        {
+            lock (lockObj)
+            {
+                if (!shown)
+                {
+                    ClusterCollection ccNew = null;
+                    Task x = Task.Run(() =>
+                        {
+                            ccNew = new ClusterCollection(efmg.GetAllEmails(), efmg.currentUser);
+                        });
+                    x.Wait();
+
+
+                    cc = ccNew;
+                    Reorder();
+                }
+            }
         }
 
         private void timerNewEmails_Tick(object sender, EventArgs e)
         {
-            lock (this)
+            lock(lockObj)
             {
-                cc.InsertNewEmails(efmg.GetNewEmails());
-                Reorder();
+                if (!shown)
+                {
+                    cc.InsertNewEmails(efmg.GetNewEmails());
+                    Reorder();
+                }
             }
         }
 
@@ -83,15 +115,15 @@ namespace SmallBang
             {
                 if (p.X >= -20 && p.X <= 20)
                 {
-                    lock (this)
+                    lock (lockObj)
                     {
+                        shown = true;
                         Width = 300;
                         clusterListBox.SelectedIndex = -1;
                         Location = new Point(0, 0);
                         Refresh();
                         Show();
                         clusterListBox.Focus();
-                        shown = true;
                     }
                 }
             }
