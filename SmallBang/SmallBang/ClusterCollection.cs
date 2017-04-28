@@ -10,7 +10,6 @@ namespace SmallBang
         public Dictionary<string, int> personToFeatureId;
         string current_user;
         public int[] countsAll;
-        EmailsFromMicrosoftGraph efmg;
 
         private void ProcessEmail(string ea)
         {
@@ -20,37 +19,33 @@ namespace SmallBang
             }
         }
 
-        public void GrabNewEmails()
+        public void InsertNewEmails(List<Email> new_emails)
         {
-            List<Email> all_emails = efmg.GetNewEmails();
-
-            for (int j = all_emails.Count - 1; j >= 0; j--)
+            for (int j = new_emails.Count - 1; j >= 0; j--)
             {
-                all_emails[j].SetUserVector(personToFeatureId);
-                AddToCounts(all_emails[j]);
+                new_emails[j].SetUserVector(personToFeatureId);
+                AddToCounts(new_emails[j]);
 
                 int wh = -1;
                 double maxGain = double.MinValue;
                 for (int i = 0; i < clusters.Count; i++)
                 {
-                    double tmp = clusters[i].deltaIfAdded(all_emails[j], countsAll);
+                    double tmp = clusters[i].deltaIfAdded(new_emails[j], countsAll);
                     if (tmp > maxGain)
                     {
                         wh = i;
                         maxGain = tmp;
                     }
                 }
-                clusters[wh].AddEmail(all_emails[j]);
+                clusters[wh].AddEmail(new_emails[j]);
                 clusters[wh].Recount();
             }
         }
 
-        public ClusterCollection(EmailsFromMicrosoftGraph _efmg)
+        public ClusterCollection(List<Email> all_emails, string _current_user)
         {
             personToFeatureId = new Dictionary<string, int>();
-            efmg = _efmg;
-            List<Email> all_emails = efmg.GetNewEmails();
-            current_user = efmg.currentUser;
+            current_user = _current_user;
             all_emails = all_emails.OrderBy(o => -o.emailStamp.Ticks).ToList();
             foreach (var e in all_emails)
             {

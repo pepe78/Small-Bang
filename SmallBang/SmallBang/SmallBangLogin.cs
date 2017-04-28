@@ -47,7 +47,7 @@ namespace SmallBang
         private void ThreadStart(object obj)
         {
             ThreadHelper th = obj as ThreadHelper;
-            th.sbf = new SmallBangForm(new ClusterCollection(th.ef));
+            th.sbf = new SmallBangForm(th.ef);
         }
 
         private void pictureBox1_Click(object sender, EventArgs e)

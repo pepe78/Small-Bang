@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
@@ -11,11 +12,14 @@ namespace SmallBang
         Timer timerShowWindow;
         Timer timerNewEmails;
         ClusterCollection cc;
+        EmailsFromMicrosoftGraph efmg;
 
-        public SmallBangForm(ClusterCollection _cc)
+        public SmallBangForm(EmailsFromMicrosoftGraph _efmg)
         {
             InitializeComponent();
-            cc = _cc;
+            efmg = _efmg;
+            List<Email> emails = efmg.GetNewEmails();
+            cc = new ClusterCollection(emails, efmg.currentUser);
             Reorder();
         }
 
@@ -56,9 +60,9 @@ namespace SmallBang
 
         private void timerNewEmails_Tick(object sender, EventArgs e)
         {
-            lock (cc)
+            lock (this)
             {
-                cc.GrabNewEmails();
+                cc.InsertNewEmails(efmg.GetNewEmails());
                 Reorder();
             }
         }
@@ -79,7 +83,7 @@ namespace SmallBang
             {
                 if (p.X >= -20 && p.X <= 20)
                 {
-                    lock (cc)
+                    lock (this)
                     {
                         Width = 300;
                         clusterListBox.SelectedIndex = -1;
@@ -195,6 +199,7 @@ namespace SmallBang
         private void SmallBangForm_FormClosed(object sender, FormClosedEventArgs e)
         {
             timerShowWindow.Stop();
+            timerNewEmails.Stop();
         }
     }
 }
