@@ -35,9 +35,6 @@
     <ApplicationIcon>sb_zDb_icon.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\Newtonsoft.Json.10.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Web" />
@@ -54,6 +51,7 @@
   <ItemGroup>
     <Compile Include="Cluster.cs" />
     <Compile Include="ClusterCollection.cs" />
+    <Compile Include="Deserializer.cs" />
     <Compile Include="Email.cs" />
     <Compile Include="EmailsFromMicrosoftGraph.cs" />
     <Compile Include="OfficeLogin.cs">

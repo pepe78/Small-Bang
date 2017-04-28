@@ -1,10 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Globalization;
-using System.IO;
 using System.Windows.Forms;
-using Newtonsoft.Json.Linq;
 
 namespace SmallBang
 {
@@ -43,30 +40,28 @@ namespace SmallBang
             }
         }
 
-        public Email(JObject obj, string currentUser)
+        public Email(DObject obj, string currentUser)
         {
             emailSubject = obj["subject"].ToString();
-            emailFrom = obj["sender"]["emailAddress"]["address"].ToString();
+            emailFrom = obj["sender"]["emailAddress"]["address"].ToString().ToLower();
             emailTo = new List<string>();
-            foreach(JObject et in obj["toRecipients"])
+            foreach(DObject et in obj["toRecipients"])
             {
-                emailTo.Add(et["emailAddress"]["address"].ToString());
+                emailTo.Add(et["emailAddress"]["address"].ToString().ToLower());
             }
             emailCc = new List<string>();
-            foreach (JObject et in obj["ccRecipients"])
+            foreach (DObject et in obj["ccRecipients"])
             {
-                emailTo.Add(et["emailAddress"]["address"].ToString());
+                emailTo.Add(et["emailAddress"]["address"].ToString().ToLower());
             }
-            emailStamp = DateTime.ParseExact(
-                            obj["sentDateTime"].ToString(),
-                            "M/dd/yyyy h:mm:ss tt",
-                            CultureInfo.InvariantCulture);
+            emailStamp = DateTime.Parse(
+                            obj["sentDateTime"].ToString());
 
             if(emailFrom.CompareTo(currentUser)==0)
             {
                 isSent = true;
             }
-            isRead = bool.Parse(obj["isRead"].ToString());
+            isRead = obj["isRead"].getBool();
             emailLink = obj["webLink"].ToString();
         }
 

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Text;
-using Newtonsoft.Json.Linq;
 using System.Collections.Specialized;
 using System.Web.Configuration;
 
@@ -31,7 +30,7 @@ namespace SmallBang
 
         private void GetAccessToken()
         {
-            JObject o = GetTokens("https://login.microsoftonline.com/common/oauth2/v2.0/token?",
+            DObject o = GetTokens("https://login.microsoftonline.com/common/oauth2/v2.0/token?",
                 "client_id=c8a2c8b2-9113-4385-97d0-83c2d6b6a956&scope=offline_access%20https%3A%2F%2Fgraph.microsoft.com%2Fmail.read&redirect_uri=https%3A%2F%2Flogin.microsoftonline.com%2Fcommon%2Foauth2%2Fnativeclient&grant_type=authorization_code&code="
                 + code);
             accessToken = o["access_token"].ToString();
@@ -40,14 +39,14 @@ namespace SmallBang
 
         private void RefreshToken()
         {
-            JObject o = GetTokens("https://login.microsoftonline.com/common/oauth2/v2.0/token?",
+            DObject o = GetTokens("https://login.microsoftonline.com/common/oauth2/v2.0/token?",
                 "client_id=c8a2c8b2-9113-4385-97d0-83c2d6b6a956&scope=offline_access%20https%3A%2F%2Fgraph.microsoft.com%2Fmail.read&redirect_uri=https%3A%2F%2Flogin.microsoftonline.com%2Fcommon%2Foauth2%2Fnativeclient&grant_type=refresh_token&refresh_token="
                 + refreshToken);
             accessToken = o["access_token"].ToString();
             refreshToken = o["refresh_token"].ToString();
         }
 
-        private JObject GetTokens(string requestUrl, string postData)
+        private DObject GetTokens(string requestUrl, string postData)
         {
             NameValueCollection appSettings = WebConfigurationManager.AppSettings;
 
@@ -70,9 +69,8 @@ namespace SmallBang
                 responseBody = sr.ReadToEnd();
             }
 
-            return JObject.Parse(responseBody);
+            return Deserializer.Deserialize(responseBody);
         }
-
 
         public List<Email> GetEmails()
         {
@@ -93,7 +91,7 @@ namespace SmallBang
                 var myStreamReader = new StreamReader(responseStream, Encoding.Default);
                 var json = myStreamReader.ReadToEnd();
 
-                JObject o = JObject.Parse(json);
+                DObject o = Deserializer.Deserialize(json);
 
                 if (currentUser == null)
                 {
@@ -101,10 +99,10 @@ namespace SmallBang
                     currentUser = o["@odata.context"].ToString();
                     currentUser = currentUser.Substring(currentUser.IndexOf(_cu) + _cu.Length);
                     currentUser = currentUser.Substring(0, currentUser.IndexOf("'"));
-                    currentUser = currentUser.Replace("%40", "@");
+                    currentUser = currentUser.Replace("%40", "@").ToLower();
                 }
 
-                foreach (JObject oo in o["value"])
+                foreach (DObject oo in o["value"])
                 {
                     try
                     {
@@ -119,7 +117,7 @@ namespace SmallBang
                 responseStream.Close();
                 myWebResponse.Close();
 
-                JToken next;
+                DObject next;
                 if (o.TryGetValue("@odata.nextLink", out next))
                 {
                     myUri = new Uri(next.ToString());
