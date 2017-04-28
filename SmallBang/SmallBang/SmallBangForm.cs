@@ -31,6 +31,9 @@ namespace SmallBang
         {
             lock (lockObj)
             {
+                Cluster ac = clusterListBox.SelectedIndex == -1 ? 
+                    null : cc.clusters[clusterListBox.SelectedIndex] as Cluster;
+
                 cc.clusters = cc.clusters.OrderBy(
                     o => -(double)(o.new_emails + 0.0) / (o.people.Count + 1.0) * (o.sent_emails + 1.0))
                     .ThenBy(o => -o.sent_emails * o.people.Count)
@@ -39,6 +42,15 @@ namespace SmallBang
                 foreach (var c in cc.clusters)
                 {
                     clusterListBox.Items.Add(c);
+                }
+
+                for(int i=0;i<cc.clusters.Count;i++)
+                {
+                    if(cc.clusters[i] == ac)
+                    {
+                        clusterListBox.SelectedIndex = i;
+                        break;
+                    }
                 }
             }
         }
@@ -219,14 +231,17 @@ namespace SmallBang
 
         private void emailListBox_Click(object sender, EventArgs e)
         {
-            Cluster cl = clusterListBox.Items[clusterListBox.SelectedIndex] as Cluster;
-            Email em = emailListBox.Items[emailListBox.SelectedIndex] as Email;
-            em.isRead = true;
-            Hide();
-            shown = false;
-            System.Diagnostics.Process.Start(em.emailLink);
-            cl.Recount();
-            Reorder();
+            if (clusterListBox.SelectedIndex != -1)
+            {
+                Cluster cl = clusterListBox.Items[clusterListBox.SelectedIndex] as Cluster;
+                Email em = emailListBox.Items[emailListBox.SelectedIndex] as Email;
+                em.isRead = true;
+                Hide();
+                shown = false;
+                System.Diagnostics.Process.Start(em.emailLink);
+                cl.Recount();
+                Reorder();
+            }
         }
 
         private void SmallBangForm_FormClosed(object sender, FormClosedEventArgs e)
