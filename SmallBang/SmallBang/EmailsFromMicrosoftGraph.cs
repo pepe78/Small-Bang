@@ -114,8 +114,6 @@ namespace SmallBang
         private DObject WebRequestToken(string requestUrl, string postData, 
             string method = "POST", string contentType = "application/x-www-form-urlencoded")
         {
-            NameValueCollection appSettings = WebConfigurationManager.AppSettings;
-
             byte[] postDataEncoded = Encoding.UTF8.GetBytes(postData);
 
             WebRequest req = HttpWebRequest.Create(requestUrl);
