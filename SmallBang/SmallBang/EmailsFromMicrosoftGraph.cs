@@ -23,13 +23,26 @@ namespace SmallBang
         string code;
         Timer timer;
 
+        string clientId = "c8a2c8b2-9113-4385-97d0-83c2d6b6a956";
+        string scope = "offline_access%20https%3A%2F%2Fgraph.microsoft.com%2Fmail.read%20https%3A%2F%2Fgraph.microsoft.com%2Fmail.readwrite";
+        string redirectUri = "https%3A%2F%2Flogin.microsoftonline.com%2Fcommon%2Foauth2%2Fnativeclient";
+        string graphUriBase = "https://login.microsoftonline.com/common/oauth2/v2.0/";
+        string messagesBaseUri = "https://graph.microsoft.com/v1.0/me/messages";
+
         public EmailsFromMicrosoftGraph()
         {
             allEmails = new List<Email>();
 
             OfficeLogin ol = new OfficeLogin();
             ol.WindowState = System.Windows.Forms.FormWindowState.Maximized;
-            ol.webBrowser1.Navigate("https://login.microsoftonline.com/common/oauth2/v2.0/authorize?client_id=c8a2c8b2-9113-4385-97d0-83c2d6b6a956&response_type=code&redirect_uri=https%3A%2F%2Flogin.microsoftonline.com%2Fcommon%2Foauth2%2Fnativeclient&response_mode=fragment&state=12345&nonce=678910&scope=offline_access%20https%3A%2F%2Fgraph.microsoft.com%2Fmail.read%20https%3A%2F%2Fgraph.microsoft.com%2Fmail.readwrite");
+            ol.webBrowser1.Navigate(
+                graphUriBase +
+                "authorize?client_id=" + 
+                clientId + 
+                "&response_type=code&redirect_uri=" + 
+                redirectUri + 
+                "&response_mode=fragment&state=12345&nonce=678910&scope=" + 
+                scope);
             ol.ShowDialog();
             code = ol.code;
 
@@ -62,9 +75,17 @@ namespace SmallBang
 
         private int GetAccessToken()
         {
-            DObject o = GetTokens("https://login.microsoftonline.com/common/oauth2/v2.0/token?",
-                "client_id=c8a2c8b2-9113-4385-97d0-83c2d6b6a956&scope=offline_access%20https%3A%2F%2Fgraph.microsoft.com%2Fmail.read%20https%3A%2F%2Fgraph.microsoft.com%2Fmail.readwrite&redirect_uri=https%3A%2F%2Flogin.microsoftonline.com%2Fcommon%2Foauth2%2Fnativeclient&grant_type=authorization_code&code="
-                + code);
+            DObject o = WebRequestToken(
+                graphUriBase + 
+                "token?",
+                "client_id=" + 
+                clientId + 
+                "&scope=" + 
+                scope + 
+                "&redirect_uri=" + 
+                redirectUri + 
+                "&grant_type=authorization_code&code=" + 
+                code);
             accessToken = o["access_token"].ToString();
             refreshToken = o["refresh_token"].ToString();
 
@@ -73,8 +94,16 @@ namespace SmallBang
 
         private int RefreshToken()
         {
-            DObject o = GetTokens("https://login.microsoftonline.com/common/oauth2/v2.0/token?",
-                "client_id=c8a2c8b2-9113-4385-97d0-83c2d6b6a956&scope=offline_access%20https%3A%2F%2Fgraph.microsoft.com%2Fmail.read%20https%3A%2F%2Fgraph.microsoft.com%2Fmail.readwrite&redirect_uri=https%3A%2F%2Flogin.microsoftonline.com%2Fcommon%2Foauth2%2Fnativeclient&grant_type=refresh_token&refresh_token="
+            DObject o = WebRequestToken(
+                graphUriBase + 
+                "token?",
+                "client_id=" + 
+                clientId + 
+                "&scope=" + 
+                scope + 
+                "&redirect_uri=" +
+                redirectUri + 
+                "&grant_type=refresh_token&refresh_token="
                 + refreshToken);
             accessToken = o["access_token"].ToString();
             refreshToken = o["refresh_token"].ToString();
@@ -82,12 +111,12 @@ namespace SmallBang
             return o["expires_in"].GetInt();
         }
 
-        private DObject GetTokens(string requestUrl, string postData, 
+        private DObject WebRequestToken(string requestUrl, string postData, 
             string method = "POST", string contentType = "application/x-www-form-urlencoded")
         {
             NameValueCollection appSettings = WebConfigurationManager.AppSettings;
 
-            byte[] postDataEncoded = System.Text.Encoding.UTF8.GetBytes(postData);
+            byte[] postDataEncoded = Encoding.UTF8.GetBytes(postData);
 
             WebRequest req = HttpWebRequest.Create(requestUrl);
             req.Method = method;
@@ -96,15 +125,12 @@ namespace SmallBang
 
             Stream requestStream = req.GetRequestStream();
             requestStream.Write(postDataEncoded, 0, postDataEncoded.Length);
+            requestStream.Close();
 
             WebResponse res = req.GetResponse();
-
-            string responseBody = null;
-
-            using (StreamReader sr = new StreamReader(res.GetResponseStream(), Encoding.UTF8))
-            {
-                responseBody = sr.ReadToEnd();
-            }
+            StreamReader sr = new StreamReader(res.GetResponseStream(), Encoding.UTF8);
+            string responseBody = sr.ReadToEnd();
+            sr.Close();
 
             return Deserializer.Deserialize(responseBody);
         }
@@ -137,29 +163,47 @@ namespace SmallBang
 
         public void SetEmailToRead(string emailId)
         {
-            var myUri = new Uri("https://graph.microsoft.com/v1.0/me/messages/" + emailId);
+            WebRequestPreAuthenticate(
+                messagesBaseUri + 
+                "/" + 
+                emailId, 
+                "PATCH", 
+                "{\"isRead\":true}");
+        }
 
-            var myWebRequest = WebRequest.Create(myUri);
-            var myHttpWebRequest = (HttpWebRequest)myWebRequest;
-            myHttpWebRequest.Method = "PATCH";
+        private DObject WebRequestPreAuthenticate(string uri, string method, string postcode)
+        {
+            Uri myUri = new Uri(uri);
+
+            WebRequest myWebRequest = WebRequest.Create(myUri);
+            HttpWebRequest myHttpWebRequest = (HttpWebRequest)myWebRequest;
+            if (method.Length != 0)
+            {
+                myHttpWebRequest.Method = method;
+            }
             myHttpWebRequest.PreAuthenticate = true;
             myHttpWebRequest.Headers.Add("Authorization", "Bearer " + accessToken);
-            myHttpWebRequest.Headers.Add("isRead", "true");
-
-            byte[] postDataEncoded = System.Text.Encoding.UTF8.GetBytes("{\"isRead\":true}");
-
-            myHttpWebRequest.ContentType = "application/json";
-            Stream requestStream = myHttpWebRequest.GetRequestStream();
-            requestStream.Write(postDataEncoded, 0, postDataEncoded.Length);
-
             myHttpWebRequest.Accept = "application/json";
-            var myWebResponse = myWebRequest.GetResponse();
-            var responseStream = myWebResponse.GetResponseStream();
 
-            var myStreamReader = new StreamReader(responseStream, Encoding.Default);
-            var json = myStreamReader.ReadToEnd();
+            if (postcode.Length != 0)
+            {
+                byte[] postDataEncoded = Encoding.UTF8.GetBytes(postcode);
+                myHttpWebRequest.ContentType = "application/json";
+                Stream requestStream = myHttpWebRequest.GetRequestStream();
+                requestStream.Write(postDataEncoded, 0, postDataEncoded.Length);
+                requestStream.Close();
+            }
 
-            DObject o = Deserializer.Deserialize(json);
+            WebResponse myWebResponse = myWebRequest.GetResponse();
+            Stream responseStream = myWebResponse.GetResponseStream();
+
+            StreamReader myStreamReader = new StreamReader(responseStream, Encoding.Default);
+            string json = myStreamReader.ReadToEnd();
+
+            responseStream.Close();
+            myWebResponse.Close();
+
+            return Deserializer.Deserialize(json);
         }
 
         private void GetEmailsInner()
@@ -167,23 +211,11 @@ namespace SmallBang
             lock (lock_obj)
             {
                 DateTime ct = DateTime.Now;
-                var myUri = new Uri("https://graph.microsoft.com/v1.0/me/messages?$orderby=sentDateTime%20desc");
+                string myUri = messagesBaseUri + "?$orderby=sentDateTime%20desc";
 
                 while (true)
                 {
-                    var myWebRequest = WebRequest.Create(myUri);
-                    var myHttpWebRequest = (HttpWebRequest)myWebRequest;
-                    myHttpWebRequest.PreAuthenticate = true;
-                    myHttpWebRequest.Headers.Add("Authorization", "Bearer " + accessToken);
-                    myHttpWebRequest.Accept = "application/json";
-
-                    var myWebResponse = myWebRequest.GetResponse();
-                    var responseStream = myWebResponse.GetResponseStream();
-
-                    var myStreamReader = new StreamReader(responseStream, Encoding.Default);
-                    var json = myStreamReader.ReadToEnd();
-
-                    DObject o = Deserializer.Deserialize(json);
+                    DObject o = WebRequestPreAuthenticate(myUri, "", "");
 
                     if (currentUser == null)
                     {
@@ -193,8 +225,6 @@ namespace SmallBang
                         currentUser = currentUser.Substring(0, currentUser.IndexOf("'"));
                         currentUser = currentUser.Replace("%40", "@").ToLower();
                     }
-                    responseStream.Close();
-                    myWebResponse.Close();
 
                     Email e = null;
                     foreach (DObject oo in o["value"])
@@ -219,7 +249,7 @@ namespace SmallBang
                     DObject next;
                     if (o.TryGetValue("@odata.nextLink", out next))
                     {
-                        myUri = new Uri(next.ToString());
+                        myUri = next.ToString();
                     }
                     else
                     {

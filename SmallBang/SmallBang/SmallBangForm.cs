@@ -112,7 +112,7 @@ namespace SmallBang
             }
             else
             {
-                if (p.X >= -20 && p.X <= 20)
+                if (p.X >= -20 && p.X <= 10)
                 {
                     shown = true;
                     Width = 300;
