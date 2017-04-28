@@ -95,20 +95,23 @@ namespace SmallBang
 
         private void clusterListBox_DrawItem(object sender, DrawItemEventArgs e)
         {
-            ListBox listBox = sender as ListBox;
-            Cluster cluster = listBox.Items[e.Index] as Cluster;
+            if (e.Index != -1)
+            {
+                ListBox listBox = sender as ListBox;
+                Cluster cluster = listBox.Items[e.Index] as Cluster;
 
-            e.DrawBackground();
-            if ((e.State & DrawItemState.Selected) == DrawItemState.Selected)
-            {
-                e.Graphics.FillRectangle(new SolidBrush(Color.FromArgb(219, 231, 249)), e.Bounds);
+                e.DrawBackground();
+                if ((e.State & DrawItemState.Selected) == DrawItemState.Selected)
+                {
+                    e.Graphics.FillRectangle(new SolidBrush(Color.FromArgb(219, 231, 249)), e.Bounds);
+                }
+                else
+                {
+                    e.Graphics.FillRectangle(Brushes.White, e.Bounds);
+                }
+                e.Graphics.DrawRectangle(new Pen(Color.FromArgb(219, 231, 249)), e.Bounds);
+                cluster.DrawItem(e);
             }
-            else
-            {
-                e.Graphics.FillRectangle(Brushes.White, e.Bounds);
-            }
-            e.Graphics.DrawRectangle(new Pen(Color.FromArgb(219, 231, 249)), e.Bounds);
-            cluster.DrawItem(e);
         }
 
         private void clusterListBox_MeasureItem(object sender, MeasureItemEventArgs e)
@@ -143,20 +146,23 @@ namespace SmallBang
 
         private void emailListBox_DrawItem(object sender, DrawItemEventArgs e)
         {
-            ListBox listBox = sender as ListBox;
-            Email email = listBox.Items[e.Index] as Email;
+            if (e.Index != -1)
+            {
+                ListBox listBox = sender as ListBox;
+                Email email = listBox.Items[e.Index] as Email;
 
-            e.DrawBackground();
-            if ((e.State & DrawItemState.Selected) == DrawItemState.Selected)
-            {
-                e.Graphics.FillRectangle(new SolidBrush(Color.FromArgb(219, 231, 249)), e.Bounds);
+                e.DrawBackground();
+                if ((e.State & DrawItemState.Selected) == DrawItemState.Selected)
+                {
+                    e.Graphics.FillRectangle(new SolidBrush(Color.FromArgb(219, 231, 249)), e.Bounds);
+                }
+                else
+                {
+                    e.Graphics.FillRectangle(Brushes.White, e.Bounds);
+                }
+                e.Graphics.DrawRectangle(new Pen(Color.FromArgb(219, 231, 249)), e.Bounds);
+                email.DrawItem(e);
             }
-            else
-            {
-                e.Graphics.FillRectangle(Brushes.White, e.Bounds);
-            }
-            e.Graphics.DrawRectangle(new Pen(Color.FromArgb(219, 231, 249)), e.Bounds);
-            email.DrawItem(e);
         }
 
         private void emailListBox_MeasureItem(object sender, MeasureItemEventArgs e)
