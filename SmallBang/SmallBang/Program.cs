@@ -5,8 +5,6 @@ namespace SmallBang
 {
     static class Program
     {
-        static public Random r = new Random();
-
         /// <summary>
         /// The main entry point for the application.
         /// </summary>
