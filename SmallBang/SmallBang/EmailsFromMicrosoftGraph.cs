@@ -29,7 +29,7 @@ namespace SmallBang
 
             OfficeLogin ol = new OfficeLogin();
             ol.WindowState = System.Windows.Forms.FormWindowState.Maximized;
-            ol.webBrowser1.Navigate("https://login.microsoftonline.com/common/oauth2/v2.0/authorize?client_id=c8a2c8b2-9113-4385-97d0-83c2d6b6a956&response_type=code&redirect_uri=https%3A%2F%2Flogin.microsoftonline.com%2Fcommon%2Foauth2%2Fnativeclient&response_mode=fragment&state=12345&nonce=678910&scope=offline_access%20https%3A%2F%2Fgraph.microsoft.com%2Fmail.read");
+            ol.webBrowser1.Navigate("https://login.microsoftonline.com/common/oauth2/v2.0/authorize?client_id=c8a2c8b2-9113-4385-97d0-83c2d6b6a956&response_type=code&redirect_uri=https%3A%2F%2Flogin.microsoftonline.com%2Fcommon%2Foauth2%2Fnativeclient&response_mode=fragment&state=12345&nonce=678910&scope=offline_access%20https%3A%2F%2Fgraph.microsoft.com%2Fmail.read%20https%3A%2F%2Fgraph.microsoft.com%2Fmail.readwrite");
             ol.ShowDialog();
             code = ol.code;
 
@@ -63,7 +63,7 @@ namespace SmallBang
         private int GetAccessToken()
         {
             DObject o = GetTokens("https://login.microsoftonline.com/common/oauth2/v2.0/token?",
-                "client_id=c8a2c8b2-9113-4385-97d0-83c2d6b6a956&scope=offline_access%20https%3A%2F%2Fgraph.microsoft.com%2Fmail.read&redirect_uri=https%3A%2F%2Flogin.microsoftonline.com%2Fcommon%2Foauth2%2Fnativeclient&grant_type=authorization_code&code="
+                "client_id=c8a2c8b2-9113-4385-97d0-83c2d6b6a956&scope=offline_access%20https%3A%2F%2Fgraph.microsoft.com%2Fmail.read%20https%3A%2F%2Fgraph.microsoft.com%2Fmail.readwrite&redirect_uri=https%3A%2F%2Flogin.microsoftonline.com%2Fcommon%2Foauth2%2Fnativeclient&grant_type=authorization_code&code="
                 + code);
             accessToken = o["access_token"].ToString();
             refreshToken = o["refresh_token"].ToString();
@@ -74,7 +74,7 @@ namespace SmallBang
         private int RefreshToken()
         {
             DObject o = GetTokens("https://login.microsoftonline.com/common/oauth2/v2.0/token?",
-                "client_id=c8a2c8b2-9113-4385-97d0-83c2d6b6a956&scope=offline_access%20https%3A%2F%2Fgraph.microsoft.com%2Fmail.read&redirect_uri=https%3A%2F%2Flogin.microsoftonline.com%2Fcommon%2Foauth2%2Fnativeclient&grant_type=refresh_token&refresh_token="
+                "client_id=c8a2c8b2-9113-4385-97d0-83c2d6b6a956&scope=offline_access%20https%3A%2F%2Fgraph.microsoft.com%2Fmail.read%20https%3A%2F%2Fgraph.microsoft.com%2Fmail.readwrite&redirect_uri=https%3A%2F%2Flogin.microsoftonline.com%2Fcommon%2Foauth2%2Fnativeclient&grant_type=refresh_token&refresh_token="
                 + refreshToken);
             accessToken = o["access_token"].ToString();
             refreshToken = o["refresh_token"].ToString();
