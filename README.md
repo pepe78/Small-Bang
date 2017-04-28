@@ -3,7 +3,7 @@
 
 ![small bang](/pic_small_bang.png)
 
-Compiled software (for Windows 7, 8 & 10 with .Net 4.5.2) can be downloaded from [Dropbox](https://www.dropbox.com/s/cgpmfooaaso8wni/SmallBang.zip?dl=0).
+Compiled software (for Windows 7, 8 & 10 with .Net 4.5.2) can be downloaded from Dropbox as [zipped directory](https://www.dropbox.com/s/cgpmfooaaso8wni/SmallBang.zip?dl=0) or [installer](https://www.dropbox.com/s/18o0x2nms6czzhi/Small%20Bang.msi?dl=0).
 
 References:
   * [Microsoft Office Graph API](http://graph.microsoft.io)
