@@ -29,14 +29,17 @@ namespace SmallBang
 
         private void Reorder()
         {
-            cc.clusters = cc.clusters.OrderBy(
-                o => -(double)(o.new_emails + 0.0) / (o.people.Count + 1.0) * (o.sent_emails + 1.0))
-                .ThenBy(o => -o.sent_emails * o.people.Count)
-                .ThenBy(o => -o.people.Count).ToList();
-            clusterListBox.Items.Clear();
-            foreach (var c in cc.clusters)
+            lock (lockObj)
             {
-                clusterListBox.Items.Add(c);
+                cc.clusters = cc.clusters.OrderBy(
+                    o => -(double)(o.new_emails + 0.0) / (o.people.Count + 1.0) * (o.sent_emails + 1.0))
+                    .ThenBy(o => -o.sent_emails * o.people.Count)
+                    .ThenBy(o => -o.people.Count).ToList();
+                clusterListBox.Items.Clear();
+                foreach (var c in cc.clusters)
+                {
+                    clusterListBox.Items.Add(c);
+                }
             }
         }
 
@@ -69,34 +72,27 @@ namespace SmallBang
 
         private void timerReCluster_Tick(object sender, EventArgs e)
         {
+            ClusterCollection ccNew = null;
+            Task x = Task.Run(() =>
+                {
+                    ccNew = new ClusterCollection(efmg.GetAllEmails(), efmg.currentUser);
+                });
+            x.Wait();
+
             lock (lockObj)
             {
-                if (!shown)
-                {
-                    ClusterCollection ccNew = null;
-                    Task x = Task.Run(() =>
-                        {
-                            ccNew = new ClusterCollection(efmg.GetAllEmails(), efmg.currentUser);
-                        });
-                    x.Wait();
-
-
-                    cc = ccNew;
-                    Reorder();
-                }
+                cc = ccNew;
             }
+            Reorder();
         }
 
         private void timerNewEmails_Tick(object sender, EventArgs e)
         {
             lock(lockObj)
-            {
-                if (!shown)
-                {
-                    cc.InsertNewEmails(efmg.GetNewEmails());
-                    Reorder();
-                }
+            { 
+                cc.InsertNewEmails(efmg.GetNewEmails());
             }
+            Reorder();
         }
 
         private void timerShowWindow_Tick(object sender, EventArgs e)
@@ -115,16 +111,13 @@ namespace SmallBang
             {
                 if (p.X >= -20 && p.X <= 20)
                 {
-                    lock (lockObj)
-                    {
-                        shown = true;
-                        Width = 300;
-                        clusterListBox.SelectedIndex = -1;
-                        Location = new Point(0, 0);
-                        Refresh();
-                        Show();
-                        clusterListBox.Focus();
-                    }
+                    shown = true;
+                    Width = 300;
+                    clusterListBox.SelectedIndex = -1;
+                    Location = new Point(0, 0);
+                    Refresh();
+                    Show();
+                    clusterListBox.Focus();
                 }
             }
         }
@@ -159,14 +152,16 @@ namespace SmallBang
         {
             if(clusterListBox.SelectedIndex != -1)
             {
-                Width = 600;
-
-                emailListBox.Items.Clear();
-                Cluster cl = clusterListBox.Items[clusterListBox.SelectedIndex] as Cluster;
-                for (int i = 0; i < cl.emails.Count; i++)
+                lock (lockObj)
                 {
-                    emailListBox.Items.Add(cl.emails[i]);
+                    emailListBox.Items.Clear();
+                    Cluster cl = clusterListBox.Items[clusterListBox.SelectedIndex] as Cluster;
+                    for (int i = 0; i < cl.emails.Count; i++)
+                    {
+                        emailListBox.Items.Add(cl.emails[i]);
+                    }
                 }
+                Width = 600;
                 emailListBox.Left = 300;
                 emailListBox.Top = 0;
                 emailListBox.Width = 300;
