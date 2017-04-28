@@ -31,6 +31,9 @@
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(SmallBangForm));
             this.clusterListBox = new System.Windows.Forms.ListBox();
             this.emailListBox = new System.Windows.Forms.ListBox();
+            this.pictureBox1 = new System.Windows.Forms.PictureBox();
+            this.button1 = new System.Windows.Forms.Button();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.SuspendLayout();
             // 
             // clusterListBox
@@ -38,7 +41,7 @@
             this.clusterListBox.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawVariable;
             this.clusterListBox.Font = new System.Drawing.Font("Microsoft Tai Le", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.clusterListBox.FormattingEnabled = true;
-            this.clusterListBox.Location = new System.Drawing.Point(52, 63);
+            this.clusterListBox.Location = new System.Drawing.Point(27, 122);
             this.clusterListBox.Name = "clusterListBox";
             this.clusterListBox.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
             this.clusterListBox.Size = new System.Drawing.Size(120, 95);
@@ -52,7 +55,7 @@
             // 
             this.emailListBox.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawVariable;
             this.emailListBox.FormattingEnabled = true;
-            this.emailListBox.Location = new System.Drawing.Point(110, 135);
+            this.emailListBox.Location = new System.Drawing.Point(369, 122);
             this.emailListBox.Name = "emailListBox";
             this.emailListBox.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
             this.emailListBox.Size = new System.Drawing.Size(120, 95);
@@ -63,11 +66,33 @@
             this.emailListBox.MeasureItem += new System.Windows.Forms.MeasureItemEventHandler(this.emailListBox_MeasureItem);
             this.emailListBox.MouseEnter += new System.EventHandler(this.emailListBox_MouseEnter);
             // 
+            // pictureBox1
+            // 
+            this.pictureBox1.Image = ((System.Drawing.Image)(resources.GetObject("pictureBox1.Image")));
+            this.pictureBox1.InitialImage = ((System.Drawing.Image)(resources.GetObject("pictureBox1.InitialImage")));
+            this.pictureBox1.Location = new System.Drawing.Point(27, 12);
+            this.pictureBox1.Name = "pictureBox1";
+            this.pictureBox1.Size = new System.Drawing.Size(300, 45);
+            this.pictureBox1.TabIndex = 2;
+            this.pictureBox1.TabStop = false;
+            // 
+            // button1
+            // 
+            this.button1.Image = global::SmallBang.Properties.Resources.sb_mark_read;
+            this.button1.Location = new System.Drawing.Point(333, 66);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(300, 45);
+            this.button1.TabIndex = 4;
+            this.button1.UseVisualStyleBackColor = true;
+            this.button1.Click += new System.EventHandler(this.button1_Click);
+            // 
             // SmallBangForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(284, 261);
+            this.ClientSize = new System.Drawing.Size(653, 261);
+            this.Controls.Add(this.button1);
+            this.Controls.Add(this.pictureBox1);
             this.Controls.Add(this.emailListBox);
             this.Controls.Add(this.clusterListBox);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
@@ -76,6 +101,7 @@
             this.Text = "Form1";
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.SmallBangForm_FormClosed);
             this.Load += new System.EventHandler(this.Form1_Load);
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -84,6 +110,8 @@
 
         private System.Windows.Forms.ListBox clusterListBox;
         private System.Windows.Forms.ListBox emailListBox;
+        private System.Windows.Forms.PictureBox pictureBox1;
+        private System.Windows.Forms.Button button1;
     }
 }
 

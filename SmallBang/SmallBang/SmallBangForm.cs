@@ -45,10 +45,13 @@ namespace SmallBang
 
         private void Form1_Load(object sender, EventArgs e)
         {
+            pictureBox1.Left = 0;
+            pictureBox1.Top = 0;
+
             Location = new Point(0, 0);
             Size = new Size(300, Screen.PrimaryScreen.Bounds.Height);
             clusterListBox.Left = 0;
-            clusterListBox.Top = 0;
+            clusterListBox.Top = pictureBox1.Height;
             clusterListBox.Width = Size.Width;
             clusterListBox.Height = Size.Height;
 
@@ -162,8 +165,10 @@ namespace SmallBang
                     }
                 }
                 Width = 600;
+                button1.Top = 0;
+                button1.Left = 300;
                 emailListBox.Left = 300;
-                emailListBox.Top = 0;
+                emailListBox.Top = button1.Height;
                 emailListBox.Width = 300;
                 emailListBox.Height = this.clusterListBox.Height;
                 emailListBox.Visible = true;
@@ -198,12 +203,18 @@ namespace SmallBang
 
         private void clusterListBox_MouseEnter(object sender, EventArgs e)
         {
-            clusterListBox.Focus();
+            if (!clusterListBox.Focused)
+            {
+                clusterListBox.Focus();
+            }
         }
 
         private void emailListBox_MouseEnter(object sender, EventArgs e)
         {
-            emailListBox.Focus();
+            if (!emailListBox.Focused)
+            {
+                emailListBox.Focus();
+            }
         }
 
         private void emailListBox_Click(object sender, EventArgs e)
@@ -222,6 +233,11 @@ namespace SmallBang
         {
             timerShowWindow.Stop();
             timerNewEmails.Stop();
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show("to do...");
         }
     }
 }

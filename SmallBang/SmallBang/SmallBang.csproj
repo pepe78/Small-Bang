@@ -56,6 +56,11 @@
     <Compile Include="OfficeLogin.Designer.cs">
       <DependentUpon>OfficeLogin.cs</DependentUpon>
     </Compile>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
     <Compile Include="SmallBangForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -78,14 +83,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
       <SubType>Designer</SubType>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-    <Compile Include="Properties\Resources.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Resources.resx</DependentUpon>
-      <DesignTime>True</DesignTime>
-    </Compile>
     <EmbeddedResource Include="SmallBangLogin.resx">
       <DependentUpon>SmallBangLogin.cs</DependentUpon>
     </EmbeddedResource>
@@ -104,7 +104,11 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Resources\sb.png" />
+    <Content Include="..\..\..\..\..\Desktop\sb.png">
+      <Link>Resources\sb.png</Link>
+    </Content>
+    <None Include="Resources\small_bang.png" />
+    <None Include="Resources\sb_mark_read.png" />
     <Content Include="sb_zDb_icon.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

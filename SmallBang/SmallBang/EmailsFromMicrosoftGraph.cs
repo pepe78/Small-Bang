@@ -78,6 +78,15 @@ namespace SmallBang
 
         public List<Email> GetAllEmails()
         {
+            DateTime curMinusMonth = DateTime.Now.Subtract(new TimeSpan(31, 0, 0, 0));
+            for(int i=0;i<allEmails.Count;i++)
+            {
+                if(allEmails[i].emailStamp < curMinusMonth)
+                {
+                    allEmails.RemoveAt(i);
+                    i--;
+                }
+            }
             return allEmails;
         }
 
