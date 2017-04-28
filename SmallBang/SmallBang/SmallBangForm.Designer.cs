@@ -61,7 +61,6 @@
             this.emailListBox.Click += new System.EventHandler(this.emailListBox_Click);
             this.emailListBox.DrawItem += new System.Windows.Forms.DrawItemEventHandler(this.emailListBox_DrawItem);
             this.emailListBox.MeasureItem += new System.Windows.Forms.MeasureItemEventHandler(this.emailListBox_MeasureItem);
-            this.emailListBox.SelectedIndexChanged += new System.EventHandler(this.emailListBox_SelectedIndexChanged);
             this.emailListBox.MouseEnter += new System.EventHandler(this.emailListBox_MouseEnter);
             // 
             // SmallBangForm

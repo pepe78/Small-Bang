@@ -175,11 +175,6 @@ namespace SmallBang
             }
         }
 
-        private void emailListBox_SelectedIndexChanged(object sender, EventArgs e)
-        {
-
-        }
-
         private void emailListBox_DrawItem(object sender, DrawItemEventArgs e)
         {
             if (e.Index != -1)
