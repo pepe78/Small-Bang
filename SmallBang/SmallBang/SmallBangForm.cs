@@ -237,7 +237,13 @@ namespace SmallBang
 
         private void button1_Click(object sender, EventArgs e)
         {
-            MessageBox.Show("to do...");
+            lock (lockObj)
+            {
+                Cluster cl = clusterListBox.Items[clusterListBox.SelectedIndex] as Cluster;
+                cl.MarkEmailsAsRead(efmg);
+                clusterListBox.Focus();
+                emailListBox.Focus();
+            }
         }
     }
 }

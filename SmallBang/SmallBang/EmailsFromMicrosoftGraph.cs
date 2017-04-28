@@ -82,15 +82,16 @@ namespace SmallBang
             return o["expires_in"].GetInt();
         }
 
-        private DObject GetTokens(string requestUrl, string postData)
+        private DObject GetTokens(string requestUrl, string postData, 
+            string method = "POST", string contentType = "application/x-www-form-urlencoded")
         {
             NameValueCollection appSettings = WebConfigurationManager.AppSettings;
 
             byte[] postDataEncoded = System.Text.Encoding.UTF8.GetBytes(postData);
 
             WebRequest req = HttpWebRequest.Create(requestUrl);
-            req.Method = "POST";
-            req.ContentType = "application/x-www-form-urlencoded";
+            req.Method = method;
+            req.ContentType = contentType;
             req.ContentLength = postDataEncoded.Length;
 
             Stream requestStream = req.GetRequestStream();
@@ -132,6 +133,33 @@ namespace SmallBang
             GetEmailsInner();
 
             return newEmails;
+        }
+
+        public void SetEmailToRead(string emailId)
+        {
+            var myUri = new Uri("https://graph.microsoft.com/v1.0/me/messages/" + emailId);
+
+            var myWebRequest = WebRequest.Create(myUri);
+            var myHttpWebRequest = (HttpWebRequest)myWebRequest;
+            myHttpWebRequest.Method = "PATCH";
+            myHttpWebRequest.PreAuthenticate = true;
+            myHttpWebRequest.Headers.Add("Authorization", "Bearer " + accessToken);
+            myHttpWebRequest.Headers.Add("isRead", "true");
+
+            byte[] postDataEncoded = System.Text.Encoding.UTF8.GetBytes("{\"isRead\":true}");
+
+            myHttpWebRequest.ContentType = "application/json";
+            Stream requestStream = myHttpWebRequest.GetRequestStream();
+            requestStream.Write(postDataEncoded, 0, postDataEncoded.Length);
+
+            myHttpWebRequest.Accept = "application/json";
+            var myWebResponse = myWebRequest.GetResponse();
+            var responseStream = myWebResponse.GetResponseStream();
+
+            var myStreamReader = new StreamReader(responseStream, Encoding.Default);
+            var json = myStreamReader.ReadToEnd();
+
+            DObject o = Deserializer.Deserialize(json);
         }
 
         private void GetEmailsInner()

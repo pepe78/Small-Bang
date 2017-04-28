@@ -25,6 +25,19 @@ namespace SmallBang
             counts = new int[amountOfPeople];
         }
 
+        public void MarkEmailsAsRead(EmailsFromMicrosoftGraph efmg)
+        {
+            foreach(var e in emails)
+            {
+                if(!e.isRead)
+                {
+                    efmg.SetEmailToRead(e.emailId);
+                }
+                e.isRead = true;
+            }
+            new_emails = 0;
+        }
+
         public void AddEmail(Email e)
         {
             emails.Insert(0, e);
