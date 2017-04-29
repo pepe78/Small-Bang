@@ -17,6 +17,7 @@ namespace SmallBang
         Timer timerReCluster;
         ClusterCollection cc;
         EmailsFromMicrosoftGraph efmg;
+        Cluster selectedCluster = null;
 
         public SmallBangForm(EmailsFromMicrosoftGraph _efmg)
         {
@@ -31,9 +32,6 @@ namespace SmallBang
         {
             lock (lockObj)
             {
-                Cluster ac = clusterListBox.SelectedIndex == -1 ? 
-                    null : cc.clusters[clusterListBox.SelectedIndex] as Cluster;
-
                 cc.clusters = cc.clusters.OrderBy(
                     o => -(double)(o.new_emails + 0.0) / (o.people.Count + 1.0) * (o.sent_emails + 1.0))
                     .ThenBy(o => -o.sent_emails * o.people.Count)
@@ -46,7 +44,7 @@ namespace SmallBang
 
                 for(int i=0;i<cc.clusters.Count;i++)
                 {
-                    if(cc.clusters[i] == ac)
+                    if(cc.clusters[i] == selectedCluster)
                     {
                         clusterListBox.SelectedIndex = i;
                         break;
@@ -60,10 +58,14 @@ namespace SmallBang
             pictureBox1.Left = 0;
             pictureBox1.Top = 0;
 
+            textBox1.Width = 300;
+            textBox1.Left = 0;
+            textBox1.Top = pictureBox1.Height;
+
             Location = new Point(0, 0);
             Size = new Size(300, Screen.PrimaryScreen.Bounds.Height);
             clusterListBox.Left = 0;
-            clusterListBox.Top = pictureBox1.Height;
+            clusterListBox.Top = pictureBox1.Height + textBox1.Height;
             clusterListBox.Width = Size.Width;
             clusterListBox.Height = Size.Height;
 
@@ -167,24 +169,29 @@ namespace SmallBang
         {
             if(clusterListBox.SelectedIndex != -1)
             {
-                lock (lockObj)
-                {
-                    emailListBox.Items.Clear();
-                    Cluster cl = clusterListBox.Items[clusterListBox.SelectedIndex] as Cluster;
-                    for (int i = 0; i < cl.emails.Count; i++)
-                    {
-                        emailListBox.Items.Add(cl.emails[i]);
-                    }
-                }
-                Width = 600;
-                button1.Top = 0;
-                button1.Left = 300;
-                emailListBox.Left = 300;
-                emailListBox.Top = button1.Height;
-                emailListBox.Width = 300;
-                emailListBox.Height = this.clusterListBox.Height;
-                emailListBox.Visible = true;
+                selectedCluster = clusterListBox.Items[clusterListBox.SelectedIndex] as Cluster;
+                RedrawCluster();
             }
+        }
+
+        private void RedrawCluster()
+        {
+            lock (lockObj)
+            {
+                emailListBox.Items.Clear();
+                for (int i = 0; i < selectedCluster.emails.Count; i++)
+                {
+                    emailListBox.Items.Add(selectedCluster.emails[i]);
+                }
+            }
+            Width = 600;
+            button1.Top = 0;
+            button1.Left = 300;
+            emailListBox.Left = 300;
+            emailListBox.Top = button1.Height;
+            emailListBox.Width = 300;
+            emailListBox.Height = this.clusterListBox.Height;
+            emailListBox.Visible = true;
         }
 
         private void emailListBox_DrawItem(object sender, DrawItemEventArgs e)
@@ -231,15 +238,14 @@ namespace SmallBang
 
         private void emailListBox_Click(object sender, EventArgs e)
         {
-            if (clusterListBox.SelectedIndex != -1)
+            if (emailListBox.SelectedIndex != -1)
             {
-                Cluster cl = clusterListBox.Items[clusterListBox.SelectedIndex] as Cluster;
                 Email em = emailListBox.Items[emailListBox.SelectedIndex] as Email;
                 em.isRead = true;
                 Hide();
                 shown = false;
                 System.Diagnostics.Process.Start(em.emailLink);
-                cl.Recount();
+                selectedCluster.Recount();
                 Reorder();
             }
         }
@@ -254,10 +260,18 @@ namespace SmallBang
         {
             lock (lockObj)
             {
-                Cluster cl = clusterListBox.Items[clusterListBox.SelectedIndex] as Cluster;
-                cl.MarkEmailsAsRead(efmg);
+                selectedCluster.MarkEmailsAsRead(efmg);
                 clusterListBox.Focus();
                 emailListBox.Focus();
+            }
+        }
+
+        private void textBox1_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if(e.KeyChar == 13)
+            {
+                selectedCluster = efmg.SearchEmails(textBox1.Text);
+                RedrawCluster();
             }
         }
     }

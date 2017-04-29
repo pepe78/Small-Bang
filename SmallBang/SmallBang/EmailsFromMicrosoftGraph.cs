@@ -133,6 +133,43 @@ namespace SmallBang
             return Deserializer.Deserialize(responseBody);
         }
 
+        public Cluster SearchEmails(string searchTerm)
+        {
+            Cluster c = new Cluster(0);
+            string myUri = messagesBaseUri + "?$search=\"" + searchTerm + "\"";
+            while (true)
+            {
+                DObject d =
+                    WebRequestPreAuthenticate(
+                        myUri, "", "");
+
+                Email e = null;
+                foreach (DObject oo in d["value"])
+                {
+                    try
+                    {
+                        e = new Email(oo, currentUser);
+                        c.AddEmail(e);
+                    }
+                    catch
+                    {
+                    }
+                }
+
+                DObject next;
+                if (d.TryGetValue("@odata.nextLink", out next))
+                {
+                    myUri = next.ToString();
+                }
+                else
+                {
+                    break;
+                }
+            }
+
+            return c;
+        }
+
         public List<Email> GetAllEmails()
         {
             DateTime curMinusMonth = DateTime.Now.Subtract(new TimeSpan(31, 0, 0, 0));
@@ -171,88 +208,90 @@ namespace SmallBang
 
         private DObject WebRequestPreAuthenticate(string uri, string method, string postcode)
         {
-            Uri myUri = new Uri(uri);
+            string json = "";
 
-            WebRequest myWebRequest = WebRequest.Create(myUri);
-            HttpWebRequest myHttpWebRequest = (HttpWebRequest)myWebRequest;
-            if (method.Length != 0)
+            lock (lock_obj)
             {
-                myHttpWebRequest.Method = method;
+                Uri myUri = new Uri(uri);
+
+                WebRequest myWebRequest = WebRequest.Create(myUri);
+                HttpWebRequest myHttpWebRequest = (HttpWebRequest)myWebRequest;
+                if (method.Length != 0)
+                {
+                    myHttpWebRequest.Method = method;
+                }
+                myHttpWebRequest.PreAuthenticate = true;
+                myHttpWebRequest.Headers.Add("Authorization", "Bearer " + accessToken);
+                myHttpWebRequest.Accept = "application/json";
+
+                if (postcode.Length != 0)
+                {
+                    byte[] postDataEncoded = Encoding.UTF8.GetBytes(postcode);
+                    myHttpWebRequest.ContentType = "application/json";
+                    Stream requestStream = myHttpWebRequest.GetRequestStream();
+                    requestStream.Write(postDataEncoded, 0, postDataEncoded.Length);
+                    requestStream.Close();
+                }
+
+                WebResponse myWebResponse = myWebRequest.GetResponse();
+                Stream responseStream = myWebResponse.GetResponseStream();
+
+                StreamReader myStreamReader = new StreamReader(responseStream, Encoding.Default);
+                json = myStreamReader.ReadToEnd();
+
+                responseStream.Close();
+                myWebResponse.Close();
             }
-            myHttpWebRequest.PreAuthenticate = true;
-            myHttpWebRequest.Headers.Add("Authorization", "Bearer " + accessToken);
-            myHttpWebRequest.Accept = "application/json";
-
-            if (postcode.Length != 0)
-            {
-                byte[] postDataEncoded = Encoding.UTF8.GetBytes(postcode);
-                myHttpWebRequest.ContentType = "application/json";
-                Stream requestStream = myHttpWebRequest.GetRequestStream();
-                requestStream.Write(postDataEncoded, 0, postDataEncoded.Length);
-                requestStream.Close();
-            }
-
-            WebResponse myWebResponse = myWebRequest.GetResponse();
-            Stream responseStream = myWebResponse.GetResponseStream();
-
-            StreamReader myStreamReader = new StreamReader(responseStream, Encoding.Default);
-            string json = myStreamReader.ReadToEnd();
-
-            responseStream.Close();
-            myWebResponse.Close();
 
             return Deserializer.Deserialize(json);
         }
 
         private void GetEmailsInner()
         {
-            lock (lock_obj)
+            DateTime ct = DateTime.Now;
+            string myUri = messagesBaseUri + "?$orderby=sentDateTime%20desc";
+
+            while (true)
             {
-                DateTime ct = DateTime.Now;
-                string myUri = messagesBaseUri + "?$orderby=sentDateTime%20desc";
+                DObject o = WebRequestPreAuthenticate(myUri, "", "");
 
-                while (true)
+                if (currentUser == null)
                 {
-                    DObject o = WebRequestPreAuthenticate(myUri, "", "");
+                    string _cu = "#users('";
+                    currentUser = o["@odata.context"].ToString();
+                    currentUser = currentUser.Substring(currentUser.IndexOf(_cu) + _cu.Length);
+                    currentUser = currentUser.Substring(0, currentUser.IndexOf("'"));
+                    currentUser = currentUser.Replace("%40", "@").ToLower();
+                }
 
-                    if (currentUser == null)
+                Email e = null;
+                foreach (DObject oo in o["value"])
+                {
+                    try
                     {
-                        string _cu = "#users('";
-                        currentUser = o["@odata.context"].ToString();
-                        currentUser = currentUser.Substring(currentUser.IndexOf(_cu) + _cu.Length);
-                        currentUser = currentUser.Substring(0, currentUser.IndexOf("'"));
-                        currentUser = currentUser.Replace("%40", "@").ToLower();
-                    }
-
-                    Email e = null;
-                    foreach (DObject oo in o["value"])
-                    {
-                        try
+                        e = new Email(oo, currentUser);
+                        if (e.emailStamp < ct.Subtract(new TimeSpan(31, 0, 0, 0)) ||
+                            alreadyProcessedEmails.Contains(e.emailId))
                         {
-                            e = new Email(oo, currentUser);
-                            if (e.emailStamp < ct.Subtract(new TimeSpan(31, 0, 0, 0)) ||
-                                alreadyProcessedEmails.Contains(e.emailId))
-                            {
-                                return;
-                            }
-                            newEmails.Add(e);
-                            allEmails.Add(e);
-                            alreadyProcessedEmails.Add(e.emailId);
+                            return;
                         }
-                        catch
-                        {
-                        }
+                        alreadyProcessedEmails.Add(e.emailId);
+                        newEmails.Add(e);
+                        allEmails.Add(e);
                     }
+                    catch
+                    {
+                    }
+                }
 
-                    DObject next;
-                    if (o.TryGetValue("@odata.nextLink", out next))
-                    {
-                        myUri = next.ToString();
-                    }
-                    else
-                    {
-                        break;
-                    }
+                DObject next;
+                if (o.TryGetValue("@odata.nextLink", out next))
+                {
+                    myUri = next.ToString();
+                }
+                else
+                {
+                    break;
                 }
             }
         }

@@ -21,7 +21,10 @@ namespace SmallBang
         public Cluster(int amountOfPeople)
         {
             emails = new List<Email>();
-            counts = new int[amountOfPeople];
+            if (amountOfPeople != 0)
+            {
+                counts = new int[amountOfPeople];
+            }
         }
 
         public void MarkEmailsAsRead(EmailsFromMicrosoftGraph efmg)
@@ -42,9 +45,12 @@ namespace SmallBang
             emails.Insert(0, e);
             for (int i = 0; i < counts.Length; i++)
             {
-                if (e.userVector[i])
+                if (e.userVector != null)
                 {
-                    counts[i]++;
+                    if (e.userVector[i])
+                    {
+                        counts[i]++;
+                    }
                 }
             }
             if(!e.isRead)
