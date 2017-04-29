@@ -69,11 +69,11 @@
             // 
             // pictureBox1
             // 
-            this.pictureBox1.Image = ((System.Drawing.Image)(resources.GetObject("pictureBox1.Image")));
+            this.pictureBox1.Image = global::SmallBang.Properties.Resources.small_bang;
             this.pictureBox1.InitialImage = ((System.Drawing.Image)(resources.GetObject("pictureBox1.InitialImage")));
             this.pictureBox1.Location = new System.Drawing.Point(27, 12);
             this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Size = new System.Drawing.Size(300, 45);
+            this.pictureBox1.Size = new System.Drawing.Size(300, 30);
             this.pictureBox1.TabIndex = 2;
             this.pictureBox1.TabStop = false;
             // 
@@ -82,7 +82,7 @@
             this.button1.Image = global::SmallBang.Properties.Resources.sb_mark_read;
             this.button1.Location = new System.Drawing.Point(333, 66);
             this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(300, 45);
+            this.button1.Size = new System.Drawing.Size(300, 30);
             this.button1.TabIndex = 4;
             this.button1.UseVisualStyleBackColor = true;
             this.button1.Click += new System.EventHandler(this.button1_Click);
