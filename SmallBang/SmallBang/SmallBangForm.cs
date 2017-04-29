@@ -268,9 +268,9 @@ namespace SmallBang
 
         private void textBox1_KeyPress(object sender, KeyPressEventArgs e)
         {
-            if(e.KeyChar == 13)
+            if(e.KeyChar == 13 && textBox1.Text.Trim().Length != 0)
             {
-                selectedCluster = efmg.SearchEmails(textBox1.Text);
+                selectedCluster = efmg.SearchEmails(textBox1.Text.Trim());
                 RedrawCluster();
             }
         }
