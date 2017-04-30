@@ -249,22 +249,25 @@ namespace SmallBang
         {
             int exp_in = 0;
 
-            if (code == null)
+            lock (lock_obj)
             {
-                OfficeLogin ol = new OfficeLogin();
-                ol.WindowState = FormWindowState.Maximized;
-                ol.webBrowser1.Navigate(
-                    graphUriBase +
-                    "authorize?client_id=" +
-                    clientId +
-                    "&response_type=code&redirect_uri=" +
-                    redirectUri +
-                    "&response_mode=fragment&state=12345&nonce=678910&scope=" +
-                    scope);
-                ol.ShowDialog();
-                code = ol.code;
+                if (code == null)
+                {
+                    OfficeLogin ol = new OfficeLogin();
+                    ol.WindowState = FormWindowState.Maximized;
+                    ol.webBrowser1.Navigate(
+                        graphUriBase +
+                        "authorize?client_id=" +
+                        clientId +
+                        "&response_type=code&redirect_uri=" +
+                        redirectUri +
+                        "&response_mode=fragment&state=12345&nonce=678910&scope=" +
+                        scope);
+                    ol.ShowDialog();
+                    code = ol.code;
 
-                exp_in = GetAccessToken();
+                    exp_in = GetAccessToken();
+                }
             }
             return exp_in;
         }

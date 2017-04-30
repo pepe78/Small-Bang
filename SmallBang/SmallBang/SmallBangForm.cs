@@ -261,7 +261,7 @@ namespace SmallBang
             lock (lockObj)
             {
                 selectedCluster.MarkEmailsAsRead(efmg);
-                clusterListBox.Focus();
+                Reorder();
                 emailListBox.Focus();
             }
         }

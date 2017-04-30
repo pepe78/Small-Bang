@@ -52,6 +52,7 @@ namespace SmallBang
 
         private void pictureBox1_Click(object sender, EventArgs e)
         {
+            pictureBox1.Enabled = false;
             th = new ThreadHelper();
             th.ef = new EmailsFromMicrosoftGraph();
 
