@@ -252,7 +252,7 @@ namespace SmallBang
             if (code == null)
             {
                 OfficeLogin ol = new OfficeLogin();
-                ol.WindowState = System.Windows.Forms.FormWindowState.Maximized;
+                ol.WindowState = FormWindowState.Maximized;
                 ol.webBrowser1.Navigate(
                     graphUriBase +
                     "authorize?client_id=" +
