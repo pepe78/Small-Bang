@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Text;
-using System.Collections.Specialized;
-using System.Web.Configuration;
 using System.Windows.Forms;
 
 namespace SmallBang
@@ -33,24 +31,7 @@ namespace SmallBang
         {
             allEmails = new List<Email>();
 
-            OfficeLogin ol = new OfficeLogin();
-            ol.WindowState = System.Windows.Forms.FormWindowState.Maximized;
-            ol.webBrowser1.Navigate(
-                graphUriBase +
-                "authorize?client_id=" + 
-                clientId + 
-                "&response_type=code&redirect_uri=" + 
-                redirectUri + 
-                "&response_mode=fragment&state=12345&nonce=678910&scope=" + 
-                scope);
-            ol.ShowDialog();
-            code = ol.code;
-
-            int exp_in = 0;
-            lock (lock_obj)
-            {
-                exp_in = GetAccessToken();
-            }
+            int exp_in = RelogIn();
 
             timer = new Timer();
             timer.Interval = exp_in * 1000 / 2;
@@ -63,10 +44,7 @@ namespace SmallBang
             timer.Enabled = false;
 
             int exp_in = 0;
-            lock (lock_obj)
-            {
-                exp_in = RefreshToken();
-            }
+            exp_in = RefreshToken();
             timer = new Timer();
             timer.Interval = exp_in * 1000 / 2;
             timer.Enabled = true;
@@ -114,23 +92,35 @@ namespace SmallBang
         private DObject WebRequestToken(string requestUrl, string postData, 
             string method = "POST", string contentType = "application/x-www-form-urlencoded")
         {
-            byte[] postDataEncoded = Encoding.UTF8.GetBytes(postData);
+            try
+            {
+                lock (lock_obj)
+                {
+                    byte[] postDataEncoded = Encoding.UTF8.GetBytes(postData);
 
-            WebRequest req = HttpWebRequest.Create(requestUrl);
-            req.Method = method;
-            req.ContentType = contentType;
-            req.ContentLength = postDataEncoded.Length;
+                    WebRequest req = HttpWebRequest.Create(requestUrl);
+                    req.Method = method;
+                    req.ContentType = contentType;
+                    req.ContentLength = postDataEncoded.Length;
 
-            Stream requestStream = req.GetRequestStream();
-            requestStream.Write(postDataEncoded, 0, postDataEncoded.Length);
-            requestStream.Close();
+                    Stream requestStream = req.GetRequestStream();
+                    requestStream.Write(postDataEncoded, 0, postDataEncoded.Length);
+                    requestStream.Close();
 
-            WebResponse res = req.GetResponse();
-            StreamReader sr = new StreamReader(res.GetResponseStream(), Encoding.UTF8);
-            string responseBody = sr.ReadToEnd();
-            sr.Close();
+                    WebResponse res = req.GetResponse();
+                    StreamReader sr = new StreamReader(res.GetResponseStream(), Encoding.UTF8);
+                    string responseBody = sr.ReadToEnd();
+                    sr.Close();
 
-            return Deserializer.Deserialize(responseBody);
+                    return Deserializer.Deserialize(responseBody);
+                }
+            }
+            catch
+            {
+                code = null;
+                RelogIn();
+                return WebRequestToken(requestUrl, postData, method, contentType);
+            }
         }
 
         public Cluster SearchEmails(string searchTerm)
@@ -208,42 +198,75 @@ namespace SmallBang
 
         private DObject WebRequestPreAuthenticate(string uri, string method, string postcode)
         {
-            string json = "";
-
-            lock (lock_obj)
+            try
             {
-                Uri myUri = new Uri(uri);
+                string json = "";
 
-                WebRequest myWebRequest = WebRequest.Create(myUri);
-                HttpWebRequest myHttpWebRequest = (HttpWebRequest)myWebRequest;
-                if (method.Length != 0)
+                lock (lock_obj)
                 {
-                    myHttpWebRequest.Method = method;
+                    Uri myUri = new Uri(uri);
+
+                    WebRequest myWebRequest = WebRequest.Create(myUri);
+                    HttpWebRequest myHttpWebRequest = (HttpWebRequest)myWebRequest;
+                    if (method.Length != 0)
+                    {
+                        myHttpWebRequest.Method = method;
+                    }
+                    myHttpWebRequest.PreAuthenticate = true;
+                    myHttpWebRequest.Headers.Add("Authorization", "Bearer " + accessToken);
+                    myHttpWebRequest.Accept = "application/json";
+
+                    if (postcode.Length != 0)
+                    {
+                        byte[] postDataEncoded = Encoding.UTF8.GetBytes(postcode);
+                        myHttpWebRequest.ContentType = "application/json";
+                        Stream requestStream = myHttpWebRequest.GetRequestStream();
+                        requestStream.Write(postDataEncoded, 0, postDataEncoded.Length);
+                        requestStream.Close();
+                    }
+
+                    WebResponse myWebResponse = myWebRequest.GetResponse();
+                    Stream responseStream = myWebResponse.GetResponseStream();
+
+                    StreamReader myStreamReader = new StreamReader(responseStream, Encoding.Default);
+                    json = myStreamReader.ReadToEnd();
+
+                    responseStream.Close();
+                    myWebResponse.Close();
                 }
-                myHttpWebRequest.PreAuthenticate = true;
-                myHttpWebRequest.Headers.Add("Authorization", "Bearer " + accessToken);
-                myHttpWebRequest.Accept = "application/json";
 
-                if (postcode.Length != 0)
-                {
-                    byte[] postDataEncoded = Encoding.UTF8.GetBytes(postcode);
-                    myHttpWebRequest.ContentType = "application/json";
-                    Stream requestStream = myHttpWebRequest.GetRequestStream();
-                    requestStream.Write(postDataEncoded, 0, postDataEncoded.Length);
-                    requestStream.Close();
-                }
-
-                WebResponse myWebResponse = myWebRequest.GetResponse();
-                Stream responseStream = myWebResponse.GetResponseStream();
-
-                StreamReader myStreamReader = new StreamReader(responseStream, Encoding.Default);
-                json = myStreamReader.ReadToEnd();
-
-                responseStream.Close();
-                myWebResponse.Close();
+                return Deserializer.Deserialize(json);
             }
+            catch
+            {
+                code = null;
+                RelogIn();
+                return WebRequestPreAuthenticate(uri, method, postcode);
+            }
+        }
 
-            return Deserializer.Deserialize(json);
+        private int RelogIn()
+        {
+            int exp_in = 0;
+
+            if (code == null)
+            {
+                OfficeLogin ol = new OfficeLogin();
+                ol.WindowState = System.Windows.Forms.FormWindowState.Maximized;
+                ol.webBrowser1.Navigate(
+                    graphUriBase +
+                    "authorize?client_id=" +
+                    clientId +
+                    "&response_type=code&redirect_uri=" +
+                    redirectUri +
+                    "&response_mode=fragment&state=12345&nonce=678910&scope=" +
+                    scope);
+                ol.ShowDialog();
+                code = ol.code;
+
+                exp_in = GetAccessToken();
+            }
+            return exp_in;
         }
 
         private void GetEmailsInner()
