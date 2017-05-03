@@ -11,7 +11,7 @@ namespace SmallBang
     public class EmailsFromMicrosoftGraph
     {
         static object lock_obj = new object();
-        static Semaphore semaphore = new Semaphore(0, 1);
+        static Semaphore semaphore = new Semaphore(1, 1);
 
         public string currentUser;
         List<Email> allEmails;
