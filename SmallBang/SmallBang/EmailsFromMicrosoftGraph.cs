@@ -4,12 +4,14 @@ using System.IO;
 using System.Net;
 using System.Text;
 using System.Windows.Forms;
+using System.Threading;
 
 namespace SmallBang
 {
     public class EmailsFromMicrosoftGraph
     {
-        object lock_obj = new object();
+        static object lock_obj = new object();
+        static Semaphore semaphore = new Semaphore(0, 1);
 
         public string currentUser;
         List<Email> allEmails;
@@ -19,7 +21,7 @@ namespace SmallBang
         string accessToken;
         string refreshToken;
         string code;
-        Timer timer;
+        System.Windows.Forms.Timer timer;
 
         string clientId = "c8a2c8b2-9113-4385-97d0-83c2d6b6a956";
         string scope = "offline_access%20https%3A%2F%2Fgraph.microsoft.com%2Fmail.read%20https%3A%2F%2Fgraph.microsoft.com%2Fmail.readwrite";
@@ -33,7 +35,7 @@ namespace SmallBang
 
             int exp_in = RelogIn();
 
-            timer = new Timer();
+            timer = new System.Windows.Forms.Timer();
             timer.Interval = exp_in * 1000 / 2;
             timer.Enabled = true;
             timer.Tick += timer_Tick;
@@ -45,7 +47,7 @@ namespace SmallBang
 
             int exp_in = 0;
             exp_in = RefreshToken();
-            timer = new Timer();
+            timer = new System.Windows.Forms.Timer();
             timer.Interval = exp_in * 1000 / 2;
             timer.Enabled = true;
             timer.Tick += timer_Tick;
@@ -247,29 +249,24 @@ namespace SmallBang
 
         private int RelogIn()
         {
-            int exp_in = 0;
-
-            lock (lock_obj)
+            semaphore.WaitOne();
+            if (code == null)
             {
-                if (code == null)
-                {
-                    OfficeLogin ol = new OfficeLogin();
-                    ol.WindowState = FormWindowState.Maximized;
-                    ol.webBrowser1.Navigate(
-                        graphUriBase +
-                        "authorize?client_id=" +
-                        clientId +
-                        "&response_type=code&redirect_uri=" +
-                        redirectUri +
-                        "&response_mode=fragment&state=12345&nonce=678910&scope=" +
-                        scope);
-                    ol.ShowDialog();
-                    code = ol.code;
-
-                    exp_in = GetAccessToken();
-                }
+                OfficeLogin ol = new OfficeLogin();
+                ol.WindowState = FormWindowState.Maximized;
+                ol.webBrowser1.Navigate(
+                    graphUriBase +
+                    "authorize?client_id=" +
+                    clientId +
+                    "&response_type=code&redirect_uri=" +
+                    redirectUri +
+                    "&response_mode=fragment&state=12345&nonce=678910&scope=" +
+                    scope);
+                ol.ShowDialog();
+                code = ol.code;
             }
-            return exp_in;
+            semaphore.Release();
+            return GetAccessToken();
         }
 
         private void GetEmailsInner()
