@@ -249,6 +249,8 @@ namespace SmallBang
 
         private int RelogIn()
         {
+            int ret = 0;
+
             semaphore.WaitOne();
             if (code == null)
             {
@@ -262,11 +264,13 @@ namespace SmallBang
                     redirectUri +
                     "&response_mode=fragment&state=12345&nonce=678910&scope=" +
                     scope);
+                ol.BringToFront();
                 ol.ShowDialog();
                 code = ol.code;
+                ret = GetAccessToken();
             }
             semaphore.Release();
-            return GetAccessToken();
+            return ret;
         }
 
         private void GetEmailsInner()
