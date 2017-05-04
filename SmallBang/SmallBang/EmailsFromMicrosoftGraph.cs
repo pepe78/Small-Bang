@@ -265,6 +265,7 @@ namespace SmallBang
                     "&response_mode=fragment&state=12345&nonce=678910&scope=" +
                     scope);
                 ol.BringToFront();
+                ol.TopMost = true;
                 ol.ShowDialog();
                 code = ol.code;
                 ret = GetAccessToken();
