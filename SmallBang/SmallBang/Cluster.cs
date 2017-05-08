@@ -203,7 +203,7 @@ namespace SmallBang
                 e.Bounds.Width - 2 * margin - numberWidth, e.Bounds.Height / 2 - margin);
             e.Graphics.DrawString(
                 getClusterName(), 
-                new Font("Georgia", 10.0F, FontStyle.Bold),
+                new Font("Times New Roman", 12.0F, FontStyle.Bold),
                 new SolidBrush(Color.FromArgb(23, 67, 137)), 
                 layoutRect, new StringFormat());
 
@@ -212,7 +212,7 @@ namespace SmallBang
                 e.Bounds.Width - 2 * margin - numberWidth, e.Bounds.Height * 4 / 9 - margin);
             e.Graphics.DrawString(
                 getPeople(),
-                new Font("Georgia", 8.0F, FontStyle.Regular),
+                new Font("Times New Roman", 8.0F, FontStyle.Regular),
                 new SolidBrush(Color.FromArgb(23, 67, 137)),
                 layoutRect, new StringFormat());
 
@@ -223,7 +223,7 @@ namespace SmallBang
                     numberWidth, e.Bounds.Height - margin);
                 e.Graphics.DrawString(
                     new_emails.ToString(),
-                    new Font("Georgia", 10.0F, FontStyle.Bold),
+                    new Font("Times New Roman", 12.0F, FontStyle.Bold),
                     new SolidBrush(Color.FromArgb(204, 26, 82)),
                     layoutRect, new StringFormat());
             }
@@ -233,7 +233,7 @@ namespace SmallBang
                 numberWidth, e.Bounds.Height - margin - 20);
             e.Graphics.DrawString(
                 emails.Count.ToString(),
-                new Font("Georgia", 8.0F, FontStyle.Regular),
+                new Font("Times New Roman", 8.0F, FontStyle.Regular),
                 new SolidBrush(Color.FromArgb(23, 67, 137)),
                 layoutRect, new StringFormat());
         }

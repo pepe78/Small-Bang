@@ -85,7 +85,7 @@ namespace SmallBang
                 e.Bounds.Width - 2 * margin - numberWidth, e.Bounds.Height / 3);
             e.Graphics.DrawString(
                 emailSubject,
-                new Font("Georgia", 9.0F, FontStyle.Bold),
+                new Font("Times New Roman", 10.0F, FontStyle.Bold),
                 new SolidBrush(Color.FromArgb(23, 67, 137)),
                 layoutRect, new StringFormat());
 
@@ -94,7 +94,7 @@ namespace SmallBang
                 e.Bounds.Width - 2 * margin - numberWidth, e.Bounds.Height / 3);
             e.Graphics.DrawString(
                 emailFrom,
-                new Font("Georgia", 8.0F, FontStyle.Regular),
+                new Font("Times New Roman", 8.0F, FontStyle.Regular),
                 new SolidBrush(Color.FromArgb(23, 67, 137)),
                 layoutRect, new StringFormat());
 
@@ -103,7 +103,7 @@ namespace SmallBang
                 e.Bounds.Width - 2 * margin - numberWidth, e.Bounds.Height / 3);
             e.Graphics.DrawString(
                 getEmailTo(),
-                new Font("Georgia", 8.0F, FontStyle.Regular),
+                new Font("Times New Roman", 8.0F, FontStyle.Regular),
                 new SolidBrush(Color.FromArgb(23, 67, 137)),
                 layoutRect, new StringFormat());
 
@@ -113,7 +113,7 @@ namespace SmallBang
                 numberWidth, e.Bounds.Height);
             e.Graphics.DrawString(
                 emailStamp.ToString("MM/dd yyyy HH:mm"),
-                new Font("Georgia", 8.0F, FontStyle.Regular),
+                new Font("Times New Roman", 8.0F, FontStyle.Regular),
                 new SolidBrush(Color.FromArgb(23, 67, 137)),
                 layoutRect, new StringFormat());
         }
