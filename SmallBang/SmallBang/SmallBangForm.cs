@@ -18,6 +18,7 @@ namespace SmallBang
         ClusterCollection cc;
         EmailsFromMicrosoftGraph efmg;
         Cluster selectedCluster = null;
+        bool firstHide = true;
 
         public SmallBangForm(EmailsFromMicrosoftGraph _efmg)
         {
@@ -119,7 +120,7 @@ namespace SmallBang
             {
                 if (!(p.X >= -20 && p.X <= this.Size.Width))
                 {
-                    Hide();
+                    HideForm();
                     shown = false;
                     clusterListBox.SelectedIndex = -1;
                 }
@@ -236,13 +237,32 @@ namespace SmallBang
             }
         }
 
+        private void HideForm()
+        {
+            if (firstHide)
+            {
+                for(int i=100;i>=0;i--)
+                {
+                    Opacity = i / 100.0;
+                    System.Threading.Thread.Sleep(20);
+                }
+                Hide();
+                this.Opacity = 1.0;
+                firstHide = false;
+            }
+            else
+            {
+                Hide();
+            }
+        }
+
         private void emailListBox_Click(object sender, EventArgs e)
         {
             if (emailListBox.SelectedIndex != -1)
             {
                 Email em = emailListBox.Items[emailListBox.SelectedIndex] as Email;
                 em.isRead = true;
-                Hide();
+                HideForm();
                 shown = false;
                 System.Diagnostics.Process.Start(em.emailLink);
                 selectedCluster.Recount();
