@@ -72,13 +72,13 @@ namespace SmallBang
             int margin = 2;
             int numberWidth = 35;
 
-            if(!isRead)
-            {
-                e.Graphics.FillRectangle(new SolidBrush(Color.FromArgb(255, 210, 210)), e.Bounds);
-            }
             if (isSent)
             {
                 e.Graphics.FillRectangle(new SolidBrush(Color.FromArgb(215, 255, 201)), e.Bounds);
+            }
+            if (!isRead)
+            {
+                e.Graphics.FillRectangle(new SolidBrush(Color.FromArgb(255, 210, 210)), e.Bounds);
             }
             Rectangle layoutRect = new Rectangle(
                 margin, e.Bounds.Top + margin,
