@@ -83,8 +83,8 @@ namespace SmallBang
             {
                 if(emails[which].userVector[i])
                 {
-                    ret -= Math.Pow((double)(counts[i] + 0.0) / (countsAll[i] + 0.0), 10.0);
-                    ret += Math.Pow((double)(counts[i] - 1.0) / (countsAll[i] + 0.0), 10.0);
+                    ret -= Math.Pow((double)((counts[i] + 0.0) * 1000.0 + 1.0) / (countsAll[i] * 1000.0 + 0.0), 10.0);
+                    ret += Math.Pow((double)((counts[i] - 1.0) * 1000.0 + 1.0) / (countsAll[i] * 1000.0 + 0.0), 10.0);
                 }
             }
 
@@ -98,8 +98,8 @@ namespace SmallBang
             {
                 if (e.userVector[i])
                 {
-                    ret += Math.Pow((double)(counts[i] + 1.0) / (countsAll[i] + 0.0), 10.0);
-                    ret -= Math.Pow((double)(counts[i] + 0.0) / (countsAll[i] + 0.0), 10.0);
+                    ret += Math.Pow((double)((counts[i] + 1.0) * 1000.0 + 1.0) / (countsAll[i] * 1000.0 + 0.0), 10.0);
+                    ret -= Math.Pow((double)((counts[i] + 0.0) * 1000.0 + 1.0) / (countsAll[i] * 1000.0 + 0.0), 10.0);
                 }
             }
 
