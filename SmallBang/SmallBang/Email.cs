@@ -70,7 +70,7 @@ namespace SmallBang
         public void DrawItem(DrawItemEventArgs e)
         {
             int margin = 2;
-            int numberWidth = 35;
+            int numberWidth = 30;
 
             if (isSent)
             {
@@ -80,6 +80,8 @@ namespace SmallBang
             {
                 e.Graphics.FillRectangle(new SolidBrush(Color.FromArgb(255, 210, 210)), e.Bounds);
             }
+            e.Graphics.DrawRectangle(Pens.LightSkyBlue,
+                new Rectangle(e.Bounds.Left - 1, e.Bounds.Top, e.Bounds.Width + 1, e.Bounds.Height));
             Rectangle layoutRect = new Rectangle(
                 margin, e.Bounds.Top + margin,
                 e.Bounds.Width - 2 * margin - numberWidth, e.Bounds.Height / 3);
@@ -109,7 +111,7 @@ namespace SmallBang
 
 
             layoutRect = new Rectangle(
-                e.Bounds.Width - margin - numberWidth, e.Bounds.Top + margin,
+                e.Bounds.Width - margin - numberWidth, e.Bounds.Top + 5,
                 numberWidth, e.Bounds.Height);
             e.Graphics.DrawString(
                 emailStamp.ToString("MM/dd yyyy HH:mm"),

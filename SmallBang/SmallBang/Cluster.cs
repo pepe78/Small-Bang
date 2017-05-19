@@ -197,6 +197,9 @@ namespace SmallBang
         {
             int margin = 2;
             int numberWidth = 30;
+             
+            e.Graphics.DrawRectangle(Pens.LightBlue, 
+                new Rectangle(e.Bounds.Left - 1, e.Bounds.Top, e.Bounds.Width + 1, e.Bounds.Height));
 
             Rectangle layoutRect = new Rectangle(
                 margin, e.Bounds.Top + margin, 
