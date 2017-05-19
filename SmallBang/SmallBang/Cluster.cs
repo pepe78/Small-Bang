@@ -197,7 +197,11 @@ namespace SmallBang
         {
             int margin = 2;
             int numberWidth = 30;
-             
+
+            if ((e.State & DrawItemState.Selected) != 0)
+            {
+                e.Graphics.FillRectangle(new SolidBrush(Color.FromArgb(255, 255, 210)), e.Bounds);
+            }
             e.Graphics.DrawRectangle(Pens.LightBlue, 
                 new Rectangle(e.Bounds.Left - 1, e.Bounds.Top, e.Bounds.Width + 1, e.Bounds.Height));
 

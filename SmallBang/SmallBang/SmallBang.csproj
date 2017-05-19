@@ -50,6 +50,9 @@
     <Compile Include="Deserializer.cs" />
     <Compile Include="Email.cs" />
     <Compile Include="EmailsFromMicrosoftGraph.cs" />
+    <Compile Include="ExtendedWebBroswer.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="OfficeLogin.cs">
       <SubType>Form</SubType>
     </Compile>

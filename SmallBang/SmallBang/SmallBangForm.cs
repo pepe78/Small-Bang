@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Drawing;
 using System.Linq;
 using System.Threading.Tasks;
@@ -43,9 +44,9 @@ namespace SmallBang
                     clusterListBox.Items.Add(c);
                 }
 
-                for(int i=0;i<cc.clusters.Count;i++)
+                for (int i = 0; i < cc.clusters.Count; i++)
                 {
-                    if(cc.clusters[i] == selectedCluster)
+                    if (cc.clusters[i] == selectedCluster)
                     {
                         clusterListBox.SelectedIndex = i;
                         break;
@@ -106,8 +107,8 @@ namespace SmallBang
 
         private void timerNewEmails_Tick(object sender, EventArgs e)
         {
-            lock(lockObj)
-            { 
+            lock (lockObj)
+            {
                 cc.InsertNewEmails(efmg.GetNewEmails());
             }
             Reorder();
@@ -168,7 +169,7 @@ namespace SmallBang
 
         private void clusterListBox_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if(clusterListBox.SelectedIndex != -1)
+            if (clusterListBox.SelectedIndex != -1)
             {
                 selectedCluster = clusterListBox.Items[clusterListBox.SelectedIndex] as Cluster;
                 RedrawCluster();
@@ -241,7 +242,7 @@ namespace SmallBang
         {
             if (firstHide)
             {
-                for(int i=100;i>=0;i--)
+                for (int i = 100; i >= 0; i--)
                 {
                     Opacity = i / 100.0;
                     System.Threading.Thread.Sleep(20);
@@ -256,17 +257,36 @@ namespace SmallBang
             }
         }
 
+        public void wb_FormClosingEventHandler(object sender, FormClosingEventArgs e)
+        {
+            this.Controls.Remove(webBrowser1);
+            Width = 600;
+            webBrowser1 = null;
+        }
+
         private void emailListBox_Click(object sender, EventArgs e)
         {
             if (emailListBox.SelectedIndex != -1)
             {
+                if(webBrowser1 == null)
+                {
+                    webBrowser1 = new ExtendedWebBrowser();
+                    webBrowser1.Dock = DockStyle.None;
+                    webBrowser1.Location = new Point(600, 0);
+                    webBrowser1.MinimumSize = new Size(20, 20);
+                    webBrowser1.Name = "webBrowser1";
+                    webBrowser1.Size = new Size(Screen.PrimaryScreen.Bounds.Width - 600 - 100,
+                        Screen.PrimaryScreen.Bounds.Height);
+                    webBrowser1.TabIndex = 6;
+                    webBrowser1.ScriptErrorsSuppressed = true;
+                    ((ExtendedWebBrowser)webBrowser1).Closing += wb_FormClosingEventHandler;
+                    Controls.Add(this.webBrowser1);
+                }
+                webBrowser1.Navigate("about:blank");
                 Email em = emailListBox.Items[emailListBox.SelectedIndex] as Email;
                 em.isRead = true;
-                HideForm();
-                shown = false;
-                System.Diagnostics.Process.Start(em.emailLink);
-                selectedCluster.Recount();
-                Reorder();
+                Width = Screen.PrimaryScreen.Bounds.Width - 100;
+                webBrowser1.Navigate(em.emailLink);
             }
         }
 

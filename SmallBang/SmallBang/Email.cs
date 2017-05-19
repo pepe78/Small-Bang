@@ -80,6 +80,10 @@ namespace SmallBang
             {
                 e.Graphics.FillRectangle(new SolidBrush(Color.FromArgb(255, 210, 210)), e.Bounds);
             }
+            if((e.State & DrawItemState.Selected) != 0)
+            {
+                e.Graphics.FillRectangle(new SolidBrush(Color.FromArgb(255, 255, 210)), e.Bounds);
+            }
             e.Graphics.DrawRectangle(Pens.LightSkyBlue,
                 new Rectangle(e.Bounds.Left - 1, e.Bounds.Top, e.Bounds.Width + 1, e.Bounds.Height));
             Rectangle layoutRect = new Rectangle(
