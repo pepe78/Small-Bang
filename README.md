@@ -6,6 +6,7 @@
 Compiled software (for Windows 7, 8 & 10 with .Net 4.5.2) can be downloaded from Dropbox as [zipped directory](https://www.dropbox.com/s/cgpmfooaaso8wni/SmallBang.zip?dl=0) or [installer](https://www.dropbox.com/s/18o0x2nms6czzhi/Small%20Bang.msi?dl=0).
 
 References:
+  * Web page of [Small Bang](http://www.frisky.world/p/small-bang.html) project
   * P. Taraba: [Powered Outer Probabilistic Clustering](http://www.iaeng.org/publication/WCECS2017/WCECS2017_pp394-398.pdf), Proceedings of the World Congress on Engineering and Computer Science, IAENG, October 2017
   * [Microsoft Office Graph API](http://graph.microsoft.io)
   * [Clustering](https://en.wikipedia.org/wiki/Cluster_analysis)
