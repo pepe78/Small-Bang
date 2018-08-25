@@ -8,5 +8,6 @@ Compiled software (for Windows 7, 8 & 10 with .Net 4.5.2) can be downloaded from
 References:
   * Web page of [Small Bang](http://www.frisky.world/p/small-bang.html) project
   * P. Taraba: [Powered Outer Probabilistic Clustering](http://www.iaeng.org/publication/WCECS2017/WCECS2017_pp394-398.pdf), Proceedings of the World Congress on Engineering and Computer Science, IAENG, October 2017 [[best paper award](http://www.iaeng.org/WCECS2017/awards.html)]
+  * P. Taraba: Clustering for binary featured datasets, [Transactions on Engineering Technologies: WCECS 2017](https://www.springer.com/us/book/9789811321900), Springer, 2019
   * [Microsoft Office Graph API](http://graph.microsoft.io)
   * [Clustering](https://en.wikipedia.org/wiki/Cluster_analysis)
